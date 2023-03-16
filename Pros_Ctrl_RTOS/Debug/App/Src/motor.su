@@ -1,0 +1,15 @@
+../App/Src/motor.c:76:6:CAN_FilterConfig	48	static
+../App/Src/motor.c:95:6:HAL_CAN_RxFifo0MsgPendingCallback	16	static
+../App/Src/motor.c:103:6:CAN_SendMessage	16	static
+../App/Src/motor.c:117:6:motor_init	8	static
+../App/Src/motor.c:129:6:motor_receive	8	static
+../App/Src/motor.c:157:6:buffer_append_int32	24	static
+../App/Src/motor.c:163:6:buffer_append_int16	24	static
+../App/Src/motor.c:168:6:can_set_current	32	static
+../App/Src/motor.c:176:6:can_set_pos_spd	72	static
+../App/Src/motor.c:189:6:can_set_origin	16	static
+../App/Src/motor.c:195:6:can_set_pos	32	static
+../App/Src/motor.c:202:6:can_set_vel	32	static
+../App/Src/motor.c:210:6:Motor_UpdateMessages	16	static
+../App/Src/motor.c:236:6:Motor_CMDUnpack	16	static
+../App/Src/motor.c:296:6:Motor_Debug_CMDUnpack	16	static

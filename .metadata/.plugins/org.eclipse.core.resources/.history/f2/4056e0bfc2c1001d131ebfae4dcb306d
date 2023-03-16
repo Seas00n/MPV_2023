@@ -1,0 +1,89 @@
+/*
+ * uart_communication.c
+ *
+ *  Created on: Feb 22, 2023
+ *      Author: yuxuan
+ */
+
+#include "main.h"
+#include "uart_communication.h"
+#include "stdio.h"
+#include "stdarg.h"
+
+
+
+static uint8_t txDataBuffer[40];
+static uint8_t rxDataBuffer[40];
+static uint32_t rx_len;
+static uint32_t tx_len;
+
+
+static char tempBuf[40];
+static uint8_t count = 0;
+
+extern UART_HandleTypeDef huart6;
+extern UART_HandleTypeDef huart8;
+
+
+volatile P2M p2m_pc = {0x10,0,0,0,0,0,0,0x0F};//totally 10 bytes
+volatile M2P m2p_pc = {0,0,0,0,0,0,0,0xFF};//totally 14 bytes
+
+void Start_PCReceiveIT(){
+	HAL_UARTEx_ReceiveToIdle_DMA(&huart6, rxDataBuffer, sizeof(rxDataBuffer));
+}
+
+
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
+	if(huart==&huart6){
+		rx_len = Size;
+		PC_UnpackMessage();
+		tx_len = sizeof(m2p_pc);
+		HAL_UART_Transmit_DMA(&huart6, txDataBuffer, sizeof(txDataBuffer));
+		count = 0;
+		while(huart6.gState!=HAL_UART_STATE_READY){
+			if(count>10){
+				PC_CommunicationErrorHandler();
+				break;
+			}else{
+				HAL_Delay(10);
+				count+=1;
+			}
+		}
+		HAL_UARTEx_ReceiveToIdle_DMA(&huart6, rxDataBuffer, sizeof(rxDataBuffer));
+	}
+}
+// [0]0x(id)* ,[9]0x*F
+void PC_UnpackMessage(){
+	if(rx_len==10 && (rxDataBuffer[8]&0xf)==0xf){
+		p2m_pc.head = 0x01;
+		p2m_pc.id = (uint8_t)(rxDataBuffer[0]>>4&0xf);
+		p2m_pc.value1 = (int16_t)(rxDataBuffer[1]<<8|rxDataBuffer[2]);
+		p2m_pc.value2 = (int16_t)(rxDataBuffer[3]<<8|rxDataBuffer[4]);
+		p2m_pc.value3 = (int16_t)(rxDataBuffer[5]<<8|rxDataBuffer[6]);
+		p2m_pc.value4 = (int16_t)(rxDataBuffer[6]<<8|rxDataBuffer[7]);
+		p2m_pc.ext_value = (uint8_t)((rxDataBuffer[0]&0xf<<4)|(rxDataBuffer[9]>>4&0xf));
+		p2m_pc.head = 0xFC;
+	}else{}
+}
+
+void PC_PackMessage(){
+
+}
+void PC_CommunicationErrorHandler(){
+	debugPrint("Send to PC Failed\r\n");
+}
+
+void debugPrint(char *fmt,...){
+	//可变长度参数
+	va_list argp;
+	uint32_t n = 0;
+	// 以fmt为起始地址，获取第一个参数的首地址
+	va_start(argp, fmt);
+	n = vsprintf((char *) tempBuf, fmt, argp);
+	// argp置0
+	va_end(argp);
+	if (HAL_UART_Transmit(&huart8, (uint8_t *) tempBuf, n, 1000) != HAL_OK) {
+		/* Transfer error in transmission process */
+		Error_Handler();
+	}
+}

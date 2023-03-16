@@ -1,0 +1,62 @@
+/*
+ * motor.c
+ *
+ *  Created on: Feb 22, 2023
+ *      Author: yuxuan
+ */
+#include "main.h"
+#include "motor.h"
+
+extern CAN_HandleTypeDef hcan1;
+
+static uint8_t txDataBuffer[10];
+static uint8_t rxDataBuffer[10];
+
+CAN_TxHeaderTypeDef txHeader;
+CAN_RxHeaderTypeDef rxHeader;
+
+uint32_t txMailBox;
+
+void CAN_FilterConfig(){
+	CAN_FilterTypeDef sFilterConfig;
+	sFilterConfig.FilterActivation = CAN_FILTER_ENABLE;
+	sFilterConfig.FilterBank = 0;
+	sFilterConfig.FilterFIFOAssignment = CAN_FILTERMODE_IDMASK;
+	sFilterConfig.FilterScale = CAN_FILTERSCALE_32BIT;
+	sFilterConfig.FilterIdHigh = 0x00;
+	sFilterConfig.FilterIdLow  = 0x00;
+	if(HAL_CAN_ConfigFilter(&hcan1, &sFilterConfig)!=HAL_OK){
+		Error_Handler();
+	}
+	if(HAL_CAN_Start(&hcan1)!=HAL_OK){
+		Error_Handler();
+	}
+	if(HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING|CAN_IT_RX_FIFO1_MSG_PENDING)){
+		Error_Handler();
+	}
+}
+
+void CAN_SendMessage(uint16_t id, uint8_t* data){
+	txHeader.StdId = id;
+	txHeader.IDE = CAN_ID_STD;
+	txHeader.RTR = CAN_RTR_DATA;
+	txHeader.DLC = 8;
+	if (HAL_CAN_GetTxMailboxesFreeLevel(&hcan1) != 0){
+		HAL_CAN_AddTxMessage(&hcan1, &txHeader, txDataBuffer, &txMailBox);
+	}
+}
+
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan){
+	if(hcan == &hcan2){
+		HAL_CAN_GetRxMessage(&hcan1, CAN_RX_FIFO0, &rxHeader, rxDataBuffer);
+	}
+}
+
+
+void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef* hcan){
+
+}
+
+
+
+

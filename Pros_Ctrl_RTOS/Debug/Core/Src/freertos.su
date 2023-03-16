@@ -1,0 +1,4 @@
+../Core/Src/freertos.c:79:6:vApplicationGetIdleTaskMemory	24	static
+../Core/Src/freertos.c:93:6:MX_FREERTOS_Init	104	static
+../Core/Src/freertos.c:145:6:Task_Commucation	24	static
+../Core/Src/freertos.c:177:6:Task_MotorCtrl	24	static

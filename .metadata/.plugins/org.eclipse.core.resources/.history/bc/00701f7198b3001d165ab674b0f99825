@@ -1,0 +1,15 @@
+/*
+ * uart_communication.c
+ *
+ *  Created on: Feb 22, 2023
+ *      Author: yuxuan
+ */
+
+#include "main.h"
+static uint8_t txDataBuffer[10];
+static uint8_t rxDataBuffer[4];
+
+extern UART_HandleTypeDef huart6;
+extern UART_HandleTypeDef huart8;
+
+

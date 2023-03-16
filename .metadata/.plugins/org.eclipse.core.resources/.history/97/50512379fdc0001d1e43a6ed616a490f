@@ -1,0 +1,17 @@
+/*
+ * uart_communication.h
+ *
+ *  Created on: Feb 22, 2023
+ *      Author: yuxuan
+ */
+
+#ifndef INC_UART_COMMUNICATION_H_
+#define INC_UART_COMMUNICATION_H_
+
+void Start_PCReceiveIT();
+void PC_UnpackMessage();
+void PC_PackMessage();
+void PC_CommunicationErrorHandler();
+void debugPring(char* fmt,...);
+void pc_communication_task();
+#endif /* INC_UART_COMMUNICATION_H_ */

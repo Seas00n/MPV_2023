@@ -1,0 +1,14 @@
+/*
+ * motor.h
+ *
+ *  Created on: Feb 22, 2023
+ *      Author: yuxuan
+ */
+
+
+#ifndef INC_MOTOR_
+#define INC_MOTOR_
+
+void CAN_FilterConfig();
+void CAN_SendMessage();
+#endif /* INC_UART_COMMUNICATION_H_ */

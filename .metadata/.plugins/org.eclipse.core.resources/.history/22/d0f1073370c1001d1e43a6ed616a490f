@@ -1,0 +1,31 @@
+/*
+ * motor.h
+ *
+ *  Created on: Feb 22, 2023
+ *      Author: yuxuan
+ */
+
+
+#ifndef INC_MOTOR_
+#define INC_MOTOR_
+typedef struct{
+	uint8_t id;
+	int16_t pos_int;
+	int16_t vel_int;
+	int16_t current_int;
+	int16_t temperature;
+	uint8_t end;
+}M2P;
+void CAN_FilterConfig();
+void CAN_SendMessage(uint16_t id, uint8_t length);
+void buffer_append_int32(uint8_t* buffer, int32_t number, uint8_t *index);
+void buffer_append_int16(uint8_t* buffer, int16_t number, uint8_t *index);
+void can_set_current(uint8_t controller_id, float current);
+void can_set_pos_spd(uint8_t controller_id, float pos,float vel,float accel );
+void can_set_pos(uint8_t controller_id, float pos);
+void can_set_vel(uint8_t controller_id, int16_t spd);
+void can_set_origin(uint8_t controller_id);
+void motor_receive();
+void motor_init();
+void motor_ctrl_task();
+#endif /* INC_UART_COMMUNICATION_H_ */

@@ -1,0 +1,32 @@
+/*
+ * msg.h
+ *
+ *  Created on: Mar 14, 2023
+ *      Author: root
+ */
+
+#ifndef INC_MSG_H_
+#define INC_MSG_H_
+typedef struct{
+	uint8_t head;
+	int16_t value1;
+	int16_t value2;
+	int16_t value3;
+	int16_t value4;
+	int16_t value5;
+	int16_t value6;
+	uint8_t end;
+}M2P;
+typedef struct{
+	uint8_t head;
+	uint8_t id;
+	int16_t value1;
+	int16_t value2;
+	int16_t value3;
+	int16_t value4;
+	uint8_t ext_value;
+	uint8_t end;
+}P2M;
+void m2pmsg_memcpy(uint8_t*,vol);
+void p2mmsg_memcpy();
+#endif /* INC_MSG_H_ */

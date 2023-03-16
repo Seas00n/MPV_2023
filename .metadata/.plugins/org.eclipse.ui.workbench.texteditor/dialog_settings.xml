@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
+		<item key="selection" value="motor_ankle.pos_desired"/>
+		<item key="wrap" value="true"/>
+		<item key="casesensitive" value="false"/>
+		<item key="wholeword" value="false"/>
+		<item key="incremental" value="false"/>
+		<item key="isRegEx" value="false"/>
+		<list key="findhistory">
+			<item value="pos_desired_ankle"/>
+			<item value="Angle_eq_ankle"/>
+			<item value="Angle_eq_knee"/>
+			<item value="Kb_knee"/>
+			<item value="Kb_ankle"/>
+			<item value="Kp_ankle"/>
+			<item value="Kp_knee"/>
+			<item value="I_desired_ankle"/>
+			<item value="vel_desired_ankle"/>
+			<item value="I_desired_knee"/>
+			<item value="vel_desired_knee"/>
+			<item value="pos_desired_knee"/>
+			<item value="msg_ext"/>
+			<item value="can_set_pos"/>
+			<item value="motor_ankle.id"/>
+		</list>
+		<list key="replacehistory">
+			<item value="motor_ankle.pos_desired"/>
+			<item value="motor_ankle.Angle_eq"/>
+			<item value="motor_knee.Angle_eq"/>
+			<item value="motor_knee.An"/>
+			<item value="motor_knee.Kb"/>
+			<item value="motor_ankle.Kb"/>
+			<item value="motor_ankle.Kp"/>
+			<item value="motor_knee.Kp"/>
+			<item value="motor_ankle.cur_desired"/>
+			<item value="motor_ankle.vel_desired"/>
+			<item value="motor_knee.cur_desired"/>
+			<item value="motor_knee.vel_desired"/>
+			<item value="motor_knee.pos_desired"/>
+			<item value=""/>
+			<item value="motor_ankle.device_id"/>
+		</list>
+	</section>
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
+		<item key="DIALOG_X_ORIGIN" value="1226"/>
+		<item key="DIALOG_Y_ORIGIN" value="167"/>
+		<item key="DIALOG_WIDTH" value="363"/>
+		<item key="DIALOG_HEIGHT" value="437"/>
+		<item key="DIALOG_FONT_NAME" value="1|Ubuntu|11.0|0|GTK|1|"/>
+	</section>
+</section>

@@ -1,0 +1,258 @@
+/* USER CODE BEGIN Header */
+/**
+  ******************************************************************************
+  * File Name          : freertos.c
+  * Description        : Code for freertos applications
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2023 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
+/* USER CODE END Header */
+
+/* Includes ------------------------------------------------------------------*/
+#include "FreeRTOS.h"
+#include "task.h"
+#include "main.h"
+#include "cmsis_os.h"
+
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
+#include "motor.h"
+#include "uart_communication.h"
+/* USER CODE END Includes */
+
+/* Private typedef -----------------------------------------------------------*/
+/* USER CODE BEGIN PTD */
+
+/* USER CODE END PTD */
+
+/* Private define ------------------------------------------------------------*/
+/* USER CODE BEGIN PD */
+
+/* USER CODE END PD */
+
+/* Private macro -------------------------------------------------------------*/
+/* USER CODE BEGIN PM */
+
+/* USER CODE END PM */
+
+/* Private variables ---------------------------------------------------------*/
+/* USER CODE BEGIN Variables */
+
+float k_float2int16 = 3000;
+float b_float2int16 = 10000;
+float k_float2int12 = 40;
+float b_float2int12 = 9000;
+extern P2M p2m_pc;
+extern MotorTypeDef motor_knee;
+extern MotorTypeDef motor_ankle;
+/* USER CODE END Variables */
+osThreadId CommucationTaskHandle;
+osThreadId MotorCtrlTaskHandle;
+osMessageQId PC_To_MotorQueueHandle;
+osMessageQId Motor_To_PC_QueueHandle;
+
+/* Private function prototypes -----------------------------------------------*/
+/* USER CODE BEGIN FunctionPrototypes */
+
+/* USER CODE END FunctionPrototypes */
+
+void Task_Commucation(void const * argument);
+void Task_MotorCtrl(void const * argument);
+
+void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
+
+/* GetIdleTaskMemory prototype (linked to static allocation support) */
+void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize );
+
+/* USER CODE BEGIN GET_IDLE_TASK_MEMORY */
+static StaticTask_t xIdleTaskTCBBuffer;
+static StackType_t xIdleStack[configMINIMAL_STACK_SIZE];
+
+void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize )
+{
+  *ppxIdleTaskTCBBuffer = &xIdleTaskTCBBuffer;
+  *ppxIdleTaskStackBuffer = &xIdleStack[0];
+  *pulIdleTaskStackSize = configMINIMAL_STACK_SIZE;
+  /* place for user code */
+}
+/* USER CODE END GET_IDLE_TASK_MEMORY */
+
+/**
+  * @brief  FreeRTOS initialization
+  * @param  None
+  * @retval None
+  */
+void MX_FREERTOS_Init(void) {
+  /* USER CODE BEGIN Init */
+
+  /* USER CODE END Init */
+
+  /* USER CODE BEGIN RTOS_MUTEX */
+  /* add mutexes, ... */
+  /* USER CODE END RTOS_MUTEX */
+
+  /* USER CODE BEGIN RTOS_SEMAPHORES */
+  /* add semaphores, ... */
+  /* USER CODE END RTOS_SEMAPHORES */
+
+  /* USER CODE BEGIN RTOS_TIMERS */
+  /* start timers, add new ones, ... */
+  /* USER CODE END RTOS_TIMERS */
+
+  /* Create the queue(s) */
+  /* definition and creation of PC_To_MotorQueue */
+  osMessageQDef(PC_To_MotorQueue, 5, P2M);
+  PC_To_MotorQueueHandle = osMessageCreate(osMessageQ(PC_To_MotorQueue), NULL);
+
+  /* definition and creation of Motor_To_PC_Queue */
+  osMessageQDef(Motor_To_PC_Queue, 5, M2P);
+  Motor_To_PC_QueueHandle = osMessageCreate(osMessageQ(Motor_To_PC_Queue), NULL);
+
+  /* USER CODE BEGIN RTOS_QUEUES */
+  /* add queues, ... */
+  /* USER CODE END RTOS_QUEUES */
+
+  /* Create the thread(s) */
+  /* definition and creation of CommucationTask */
+  osThreadDef(CommucationTask, Task_Commucation, osPriorityNormal, 0, 400);
+  CommucationTaskHandle = osThreadCreate(osThread(CommucationTask), NULL);
+
+  /* definition and creation of MotorCtrlTask */
+  osThreadDef(MotorCtrlTask, Task_MotorCtrl, osPriorityNormal, 0, 400);
+  MotorCtrlTaskHandle = osThreadCreate(osThread(MotorCtrlTask), NULL);
+
+  /* USER CODE BEGIN RTOS_THREADS */
+  /* add threads, ... */
+  /* USER CODE END RTOS_THREADS */
+
+}
+
+/* USER CODE BEGIN Header_Task_Commucation */
+/**
+  * @brief  Function implementing the CommucationTask thread.
+  * @param  argument: Not used
+  * @retval None
+  */
+/* USER CODE END Header_Task_Commucation */
+void Task_Commucation(void const * argument)
+{
+  /* USER CODE BEGIN Task_Commucation */
+	BaseType_t xStatus;
+	M2P m2p_pc;
+  /* Infinite loop */
+  for(;;)
+  {
+	if(p2m_pc.head==0xFC&&p2m_pc.end==0xFF){
+		xStatus = xQueueSendToBack(PC_To_MotorQueueHandle,&p2m_pc,1000);
+		if(xStatus==pdPASS){}else{}
+	}else{}
+    osDelay(10);
+  }
+  /* USER CODE END Task_Commucation */
+}
+
+/* USER CODE BEGIN Header_Task_MotorCtrl */
+/**
+* @brief Function implementing the MotorCtrlTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_Task_MotorCtrl */
+void Task_MotorCtrl(void const * argument)
+{
+  /* USER CODE BEGIN Task_MotorCtrl */
+  BaseType_t xStatus;
+  P2M p2m_motor = {0x10,0,0,0,0,0,0,0x0F};
+  float pos_desired_knee = 0;
+  float vel_desired_knee = 0;
+  float I_desired_knee = 0;
+  float Kp_knee = 0;
+  float Kb_knee = 0;
+  float Angle_eq_knee = 0;
+
+  float pos_desired_ankle = 0;
+  float vel_desired_ankle = 0;
+  float I_desired_ankle = 0;
+  float Kp_ankle = 0;
+  float Kb_ankle = 0;
+  float Angle_eq_ankle = 0;
+  uint16_t temp;
+	/* Infinite loop */
+  for(;;)
+  {
+	xStatus = xQueueReceive(PC_To_MotorQueueHandle, &p2m_motor,0);
+	if(xStatus==pdPASS){
+		if(p2m_motor.id==CMD_QUICK_STOP){
+			motor_knee.state = 0x00;
+			motor_ankle.state = 0x00;
+			can_set_velocity(motor_knee.device_id, 0);
+			can_set_velocity(motor_ankle.device_id, 0);
+		}else if(p2m_motor.id==CMD_POSITION_CTRL){
+			if(motor_knee.state==0x01&&motor_ankle.state==0x01){
+				pos_desired_knee = (float)((p2m_motor.value1-b_float2int16)/k_float2int16);
+				can_set_postion(motor_knee.device_id, pos_desired_knee);
+				pos_desired_ankle = (float)((p2m_motor.value2-b_float2int16)/k_float2int16);
+				can_set_position(motor_ankle.device_id, pos_desired_ankle);
+			}else{}
+		}else if(p2m_motor.id==CMD_POSITION_AND_VELOCITY){
+			if(motor_knee.state==0x01&&motor_ankle.state==0x01){
+				pos_desired_knee = (float)((p2m_motor.value1-b_float2int16)/k_float2int16);
+				can_set_vel(motor_knee.device_id, vel_desired_knee);
+				pos_desired_ankle = (float)((p2m_motor.value2-b_float2int16)/k_float2int16);
+				can_set_vel(motor_ankle.device_id, vel_desired_ankle);
+				}
+		}else if(p2m_motor.id==CMD_POSITION_AND_VELOCITY){
+			if(motor_knee.state==0x01&&motor_ankle.state==0x01){
+				pos_desired_knee = (float)((p2m_motor.value1-b_float2int16)/k_float2int16);
+				vel_desired_knee = (float)((p2m_motor.value2-b_float2int16)/k_float2int16);
+				pos_desired_ankle = (float)((p2m_motor.value3-b_float2int16)/k_float2int16);
+				vel_desired_ankle = (float)((p2m_motor.value4-b_float2int16)/k_float2int16);
+				can_set_pos_spd(motor_knee.device_id, pos_desired_knee, vel_desired_knee, 30000);
+				can_set_pos_spd(motor_ankle.device_id, pos_desired_ankle, vel_desired_ankle, 30000);
+				}
+		}else if(p2m_motor.id==CMD_TORQUE_CTRL){
+			if(motor_knee.state==0x01&&motor_ankle.state==0x01){
+				I_desired_knee = (float)((p2m_motor.value1-b_float2int16)/k_float2int16);
+				can_set_current(motor_knee.device_id, I_desired_knee);
+				I_desired_ankle = (float)((p2m_motor.value2-b_float2int16)/k_float2int16);
+				can_set_current(motor_ankle.device_id, I_desired_ankle);
+			}
+		}else if(p2m_motor.id==CMD_IMPEDANCE){
+			if(motor_knee.state==0x01&&motor_ankle.state==0x01){
+				temp = (uint16_t)(p2m_motor.value1>>4&0xfff);
+				Kp_knee =(float) (temp-b_float2int12)/k_float2int12;
+				temp = (uint16_t)((p2m_motor.value1&0xf<<8)|(p2m_motor.value2>>8&0xff));
+				Kp_knee = (float) (temp-b_float2int12)/k_float2int12;
+				temp = (uint16_t)((p2m_motor.value2&0xff<<4)|(p2m_motor.value3>>12&0xf));
+				Kb_knee = (float) (temp-b_float2int12)/k_float2int12;
+				temp = (uint16_t)(p2m_motor.value3&0xfff);
+				Kb_ankle = (float) (temp-b_float2int12)/k_float2int12;
+				temp = (uint16_t)(p2m_motor.value4>>4&0xfff);
+				Angle_eq_knee = (float) (temp-b_float2int12)/k_float2int12;
+				temp = (uint16_t)((p2m_motor.value4&0xf<<8)|(p2m_motor.ext_value));
+				Angle_eq_ankle = (float) (temp-b_float2int12)/k_float2int12;
+				I_desired_knee = Kp_knee*(motor_knee.pos_actual-Angle_eq_knee)+Kb_knee*motor_knee.vel_actual;
+				I_desired_ankle = Kp_ankle*(motor_ankle.pos_actual-Angle_eq_ankle)+Kb_knee*motor_ankle.vel_actual;
+				can_set_current(motor_knee.device_id, I_desired_knee);
+				can_set_current(motor_ankle.device_id, I_desired_ankle);
+			}
+		}
+	}else{}
+	osDelay(10);
+  }
+  /* USER CODE END Task_MotorCtrl */
+}
+
+/* Private application code --------------------------------------------------*/
+/* USER CODE BEGIN Application */
+
+/* USER CODE END Application */

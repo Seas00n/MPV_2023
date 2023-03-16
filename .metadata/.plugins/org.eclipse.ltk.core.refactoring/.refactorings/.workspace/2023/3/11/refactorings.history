@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">&#x0A;<refactoring comment="Delete resource &apos;Pros_Ctrl_RTOS/App/Inc/msg&apos;" deleteContents="false" description="Delete resource &apos;Pros_Ctrl_RTOS/App/Inc/msg&apos;" element1="/Pros_Ctrl_RTOS/App/Inc/msg" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="1" stamp="1678728513325"/>&#x0A;<refactoring comment="Delete resource &apos;Pros_Ctrl_RTOS/App/Inc/debug_uart.h&apos;" deleteContents="false" description="Delete resource &apos;Pros_Ctrl_RTOS/App/Inc/debug_uart.h&apos;" element1="/Pros_Ctrl_RTOS/App/Inc/debug_uart.h" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="1" stamp="1678728747658"/>
+</session>
