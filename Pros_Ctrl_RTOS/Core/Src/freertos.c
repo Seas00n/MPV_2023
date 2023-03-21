@@ -109,11 +109,11 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the queue(s) */
   /* definition and creation of PC_To_MotorQueue */
-  osMessageQDef(PC_To_MotorQueue, 5, P2M);
+  osMessageQDef(PC_To_MotorQueue, 3, P2M);
   PC_To_MotorQueueHandle = osMessageCreate(osMessageQ(PC_To_MotorQueue), NULL);
 
   /* definition and creation of Motor_To_PC_Queue */
-  osMessageQDef(Motor_To_PC_Queue, 5, M2P);
+  osMessageQDef(Motor_To_PC_Queue, 3, M2P);
   Motor_To_PC_QueueHandle = osMessageCreate(osMessageQ(Motor_To_PC_Queue), NULL);
 
   /* USER CODE BEGIN RTOS_QUEUES */
@@ -151,11 +151,11 @@ void Task_Commucation(void const * argument)
   for(;;)
   {
 	if(p2m_pc.head==0xFC&&p2m_pc.end==0xFF){
-		xStatus_Send = xQueueSendToBack(PC_To_MotorQueueHandle,&p2m_pc,1000);
+		xStatus_Send = xQueueSendToBack(PC_To_MotorQueueHandle,&p2m_pc,0);
 		if(xStatus_Send==pdPASS){}else{}
 	}else{}
 
-	xStatus_Receive = xQueueReceive(Motor_To_PC_QueueHandle, &m2p_pc, 1000);
+	xStatus_Receive = xQueueReceive(Motor_To_PC_QueueHandle, &m2p_pc, 0);
 	if(xStatus_Receive==pdPASS){
 		if(m2p_pc.head==0xFC&&m2p_pc.end==0xFF){
 			PC_PackMessage();
@@ -190,12 +190,12 @@ void Task_MotorCtrl(void const * argument)
 		}
 	}else{}//end xStatus
 	if(m2p_motor.head==0xFC&&m2p_motor.end==0xFF){
-		xStatus_Send = xQueueSend(Motor_To_PC_QueueHandle,&m2p_motor,1000);
+		xStatus_Send = xQueueSend(Motor_To_PC_QueueHandle,&m2p_motor,0);
 		if(xStatus_Send==pdPASS){
 
 		}else{}
 	}
-	osDelay(10);
+	osDelay(5);
   }
   /* USER CODE END Task_MotorCtrl */
 }

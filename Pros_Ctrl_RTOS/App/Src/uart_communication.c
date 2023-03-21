@@ -52,10 +52,10 @@ void PC_UnpackMessage(){
 	if(rx_len==10 && (rxDataBuffer[9]&0xf)==0xf){
 		p2m_pc.head = 0x01;
 		p2m_pc.id = (uint8_t)(rxDataBuffer[0]>>4&0xf);
-		p2m_pc.value1 = (int16_t)(rxDataBuffer[1]<<8|rxDataBuffer[2]);
-		p2m_pc.value2 = (int16_t)(rxDataBuffer[3]<<8|rxDataBuffer[4]);
-		p2m_pc.value3 = (int16_t)(rxDataBuffer[5]<<8|rxDataBuffer[6]);
-		p2m_pc.value4 = (int16_t)(rxDataBuffer[7]<<8|rxDataBuffer[8]);
+		p2m_pc.value1 = (uint16_t)(rxDataBuffer[1]<<8|rxDataBuffer[2]);
+		p2m_pc.value2 = (uint16_t)(rxDataBuffer[3]<<8|rxDataBuffer[4]);
+		p2m_pc.value3 = (uint16_t)(rxDataBuffer[5]<<8|rxDataBuffer[6]);
+		p2m_pc.value4 = (uint16_t)(rxDataBuffer[7]<<8|rxDataBuffer[8]);
 		p2m_pc.ext_value = (uint8_t)((rxDataBuffer[0]&0xf<<4)|(rxDataBuffer[9]>>4&0xf));
 		p2m_pc.head = 0xFC;
 	}else{}
@@ -72,7 +72,7 @@ void PC_PackMessage(){
 				PC_CommunicationErrorHandler();
 				break;
 			}else{
-				HAL_Delay(10);
+				HAL_Delay(2);
 				count+=1;
 			}
 		}
