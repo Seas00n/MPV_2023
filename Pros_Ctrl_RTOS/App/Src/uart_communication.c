@@ -56,7 +56,7 @@ void PC_UnpackMessage(){
 		p2m_pc.value2 = (uint16_t)(rxDataBuffer[3]<<8|rxDataBuffer[4]);
 		p2m_pc.value3 = (uint16_t)(rxDataBuffer[5]<<8|rxDataBuffer[6]);
 		p2m_pc.value4 = (uint16_t)(rxDataBuffer[7]<<8|rxDataBuffer[8]);
-		p2m_pc.ext_value = (uint8_t)((rxDataBuffer[0]&0xf<<4)|(rxDataBuffer[9]>>4&0xf));
+		p2m_pc.ext_value = (uint8_t)(((rxDataBuffer[0]&0xf)<<4)|(rxDataBuffer[9]>>4&0xf));
 		p2m_pc.head = 0xFC;
 	}else{}
 }
