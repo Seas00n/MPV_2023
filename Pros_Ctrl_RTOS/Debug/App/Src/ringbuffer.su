@@ -1,0 +1,5 @@
+../App/Src/ringbuffer.c:14:6:RingBuf_WriteByte	16	static
+../App/Src/ringbuffer.c:26:6:RingBuf_WriteByteArray	24	static
+../App/Src/ringbuffer.c:41:5:RingBuf_ReadByte	16	static
+../App/Src/ringbuffer.c:55:5:RingBuf_ReadByteArray	24	static
+../App/Src/ringbuffer.c:86:5:RingBuf_ReadByteNewestArray	24	static

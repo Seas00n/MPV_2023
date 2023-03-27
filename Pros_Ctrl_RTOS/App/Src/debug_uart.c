@@ -8,8 +8,14 @@
 #include "debug_uart.h"
 #include "stdio.h"
 #include "stdarg.h"
+#include "FreeRTOS.h"
+#include "task.h"
+
 static char tempBuf[40];
 extern UART_HandleTypeDef huart8;
+static int inHandlerMode(void){
+	return __get_IPSR();
+}
 void debugPrint(char *fmt,...){
 	//可变长度参数
 	va_list argp;
@@ -26,4 +32,23 @@ void debugPrint(char *fmt,...){
 }
 
 
+void debugPrintMultiThread(char* fmt, ...){
+	char buf[40]={0};
+	if(inHandlerMode()!=0){
+		taskDISABLE_INTERRUPTS();
+	}else{
+		taskENTER_CRITICAL();
+	}
+	va_list argp;
+	uint32_t n=0;
 
+	va_start(argp, fmt);
+	n = vsprintf((char*)buf, fmt, argp);
+	HAL_UART_Transmit(&huart8, (uint8_t *)buf, n, 100);
+	va_end(argp);
+	if(inHandlerMode()!=0){
+		taskENABLE_INTERRUPTS();
+	}else{
+		taskEXIT_CRITICAL();
+	}
+}

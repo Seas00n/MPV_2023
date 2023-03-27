@@ -66,7 +66,7 @@ main-build: Pros_Ctrl_RTOS.elf secondary-outputs
 
 # Tool invocations
 Pros_Ctrl_RTOS.elf Pros_Ctrl_RTOS.map: $(OBJS) $(USER_OBJS) /home/yuxuan/Project/MPV_2023/Pros_Ctrl_RTOS/STM32F427IIHX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "Pros_Ctrl_RTOS.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"/home/yuxuan/Project/MPV_2023/Pros_Ctrl_RTOS/STM32F427IIHX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Pros_Ctrl_RTOS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+	arm-none-eabi-gcc -o "Pros_Ctrl_RTOS.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"/home/yuxuan/Project/MPV_2023/Pros_Ctrl_RTOS/STM32F427IIHX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Pros_Ctrl_RTOS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -u _scanf_float -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

@@ -58,6 +58,8 @@ osThreadId CommucationTaskHandle;
 osThreadId MotorCtrlTaskHandle;
 osMessageQId PC_To_MotorQueueHandle;
 osMessageQId Motor_To_PC_QueueHandle;
+osMutexId p2mMutexHandle;
+osMutexId m2pMutexHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -94,6 +96,14 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
 
   /* USER CODE END Init */
+  /* Create the mutex(es) */
+  /* definition and creation of p2mMutex */
+  osMutexDef(p2mMutex);
+  p2mMutexHandle = osMutexCreate(osMutex(p2mMutex));
+
+  /* definition and creation of m2pMutex */
+  osMutexDef(m2pMutex);
+  m2pMutexHandle = osMutexCreate(osMutex(m2pMutex));
 
   /* USER CODE BEGIN RTOS_MUTEX */
   /* add mutexes, ... */
@@ -109,11 +119,11 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the queue(s) */
   /* definition and creation of PC_To_MotorQueue */
-  osMessageQDef(PC_To_MotorQueue, 3, P2M);
+  osMessageQDef(PC_To_MotorQueue, 5, P2M);
   PC_To_MotorQueueHandle = osMessageCreate(osMessageQ(PC_To_MotorQueue), NULL);
 
   /* definition and creation of Motor_To_PC_Queue */
-  osMessageQDef(Motor_To_PC_Queue, 3, M2P);
+  osMessageQDef(Motor_To_PC_Queue, 5, M2P);
   Motor_To_PC_QueueHandle = osMessageCreate(osMessageQ(Motor_To_PC_Queue), NULL);
 
   /* USER CODE BEGIN RTOS_QUEUES */
@@ -150,18 +160,31 @@ void Task_Commucation(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-	if(p2m_pc.head==0xFC&&p2m_pc.end==0xFF){
-		xStatus_Send = xQueueSendToBack(PC_To_MotorQueueHandle,&p2m_pc,0);
-		if(xStatus_Send==pdPASS){}else{}
-	}else{}
+//	xSemaphoreTake(p2mMutexHandle, 0);
+//	PC_UnpackMessage();
+//	if(p2m_pc.head==0xFC&&p2m_pc.end==0xFF){
+//		xStatus_Send = xQueueSendToBack(PC_To_MotorQueueHandle,&p2m_pc,0);
+//		if(xStatus_Send==pdPASS){}else{}
+//	}else{}
 
-	xStatus_Receive = xQueueReceive(Motor_To_PC_QueueHandle, &m2p_pc, 0);
-	if(xStatus_Receive==pdPASS){
-		if(m2p_pc.head==0xFC&&m2p_pc.end==0xFF){
-			PC_PackMessage();
-		}else{}//end m2p_pc.id
-	}else{}//end xStatus_Receive
-	debugPrint("Hello World\n");
+
+//	xStatus_Receive = xQueueReceive(Motor_To_PC_QueueHandle, &m2p_pc, 0);
+//	if(xStatus_Receive==pdPASS){
+//		if(m2p_pc.head==0xFC&&m2p_pc.end==0xFF){
+//			PC_PackMessage();
+//		}else{m2p_pc_wrong+=1;}//end m2p_pc.id
+//	}else{}//end xStatus_Receive
+
+	if(xSemaphoreTake(p2mMutexHandle, 0)==pdTRUE){
+		PC_UnpackMessage();
+		xSemaphoreGive(p2mMutexHandle);
+	}
+	if(xSemaphoreTake(m2pMutexHandle, 0)==pdTRUE){
+		PC_PackMessage();
+		xSemaphoreGive(m2pMutexHandle);
+	}
+
+//	debugPrintMultiThread("Hello:Communication Task \r\n");
     osDelay(10);
   }
   /* USER CODE END Task_Commucation */
@@ -182,20 +205,29 @@ void Task_MotorCtrl(void const * argument)
 	/* Infinite loop */
   for(;;)
   {
-	xStatus_Receive = xQueueReceive(PC_To_MotorQueueHandle, &p2m_motor,0);
-	if(xStatus_Receive==pdPASS){
-		if(p2m_motor.head==0xFC&&p2m_motor.end==0xFF){
-			//Motor_CMDUnpack();
-			Motor_Debug_CMDUnpack();
-		}
-	}else{}//end xStatus
-	if(m2p_motor.head==0xFC&&m2p_motor.end==0xFF){
-		xStatus_Send = xQueueSend(Motor_To_PC_QueueHandle,&m2p_motor,0);
-		if(xStatus_Send==pdPASS){
-
-		}else{}
-	}
-	osDelay(5);
+//	xStatus_Receive = xQueueReceive(PC_To_MotorQueueHandle, &p2m_motor,0);
+//	if(xStatus_Receive==pdPASS){
+//		if(p2m_motor.head==0xFC&&p2m_motor.end==0xFF){
+//			//Motor_CMDUnpack();
+//			Motor_Debug_CMDUnpack();
+//		}
+//	}else{}//end xStatus
+//	Motor_UpdateMessages();
+//	if(m2p_motor.head==0xFC&&m2p_motor.end==0xFF){
+//		xStatus_Send = xQueueSend(Motor_To_PC_QueueHandle,&m2p_motor,0);
+//		if(xStatus_Send==pdPASS){
+//		}else{}
+//	}
+	  if(xSemaphoreTake(p2mMutexHandle, 0)==pdTRUE){
+		  Motor_Debug_CMDUnpack();
+		  xSemaphoreGive(p2mMutexHandle);
+	  }
+	  if(xSemaphoreTake(m2pMutexHandle, 0)==pdTRUE){
+		  Motor_UpdateMessages();
+		  xSemaphoreGive(m2pMutexHandle);
+	  }
+//	  debugPrintMultiThread("Hello: Task Motor\r\n");
+	  osDelay(5);
   }
   /* USER CODE END Task_MotorCtrl */
 }

@@ -1,6 +1,7 @@
 "./App/Src/debug_uart.o"
 "./App/Src/motor.o"
 "./App/Src/msg.o"
+"./App/Src/ringbuffer.o"
 "./App/Src/uart_communication.o"
 "./Core/Src/can.o"
 "./Core/Src/dma.o"

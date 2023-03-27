@@ -1,0 +1,18 @@
+/*
+ * ringbuffer.h
+ *
+ *  Created on: Mar 23, 2023
+ *      Author: root
+ */
+
+#ifndef INC_RINGBUFFER_H_
+#define INC_RINGBUFFER_H_
+typedef struct{
+	unsigned char headPosition;
+	unsigned char tailPosition;
+	unsigned char ringBuf[Buffer_MAX];
+}ringBuffer_t;
+
+
+
+#endif /* INC_RINGBUFFER_H_ */

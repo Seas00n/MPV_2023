@@ -1,0 +1,8 @@
+1679573572696	Move 'debug_uart.h' to 'Inc'
+1679573575251	Move 'motor.h' to 'Inc'
+1679573577655	Move 'msg.h' to 'Inc'
+1679573579989	Move 'uart_communication.h' to 'Inc'
+1679573588660	Move 'debug_uart.c' to 'Src'
+1679573590211	Move 'motor.c' to 'Src'
+1679573591347	Move 'msg.c' to 'Src'
+1679573592518	Move 'uart_communication.c' to 'Src'

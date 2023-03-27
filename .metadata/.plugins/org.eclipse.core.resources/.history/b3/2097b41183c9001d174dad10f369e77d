@@ -1,0 +1,29 @@
+/*
+ * ringbuffer.c
+ *
+ *  Created on: Mar 23, 2023
+ *      Author: root
+ */
+#include "ringbuffer.h"
+void RingBuf_WriteByte(ringBuffer_t* buffer,uint8_t data){
+	buffer.ringBuf[buffer.tailPosition]=data;
+	if(++(buffer->tailPosition)>=Buffer_MAX){
+		buffer->tailPosition = 0;
+	}else{}
+	if(buffer->tailPosition==buffer->headPosition){
+		if(buffer->headPosition>=Buffer_MAX){
+			buffer->headPosition = 0;
+		}
+	}else{}
+}
+
+void RingBuf_ReadByte(ringBuffer_t* buffer, uint8_t* pData){
+	if(buffer->headPosition==buffer->tailPosition){
+		return 1;
+	}else{
+		*pData = buffer->ringBuf[buffer->headPosition];
+		if(++(buffer->headPosition)>=Buffer_MAX){
+
+		}
+	}
+}

@@ -21,6 +21,7 @@ typedef struct{
 	float Angle_eq;
 	float temperature;
 	uint8_t state;
+	uint8_t is_free;
 }MotorTypeDef;
 
 

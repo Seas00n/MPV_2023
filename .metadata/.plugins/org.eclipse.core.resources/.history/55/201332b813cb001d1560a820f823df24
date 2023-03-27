@@ -1,0 +1,238 @@
+/* USER CODE BEGIN Header */
+/**
+  ******************************************************************************
+  * File Name          : freertos.c
+  * Description        : Code for freertos applications
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2023 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
+/* USER CODE END Header */
+
+/* Includes ------------------------------------------------------------------*/
+#include "FreeRTOS.h"
+#include "task.h"
+#include "main.h"
+#include "cmsis_os.h"
+
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
+#include "motor.h"
+#include "uart_communication.h"
+#include "msg.h"
+#include "debug_uart.h"
+/* USER CODE END Includes */
+
+/* Private typedef -----------------------------------------------------------*/
+/* USER CODE BEGIN PTD */
+
+/* USER CODE END PTD */
+
+/* Private define ------------------------------------------------------------*/
+/* USER CODE BEGIN PD */
+
+/* USER CODE END PD */
+
+/* Private macro -------------------------------------------------------------*/
+/* USER CODE BEGIN PM */
+
+/* USER CODE END PM */
+
+/* Private variables ---------------------------------------------------------*/
+/* USER CODE BEGIN Variables */
+
+extern P2M p2m_pc;
+extern M2P m2p_pc;
+extern P2M p2m_motor;
+extern M2P m2p_motor;
+static int m2p_pc_wrong = 0;
+/* USER CODE END Variables */
+osThreadId CommucationTaskHandle;
+osThreadId MotorCtrlTaskHandle;
+osMessageQId PC_To_MotorQueueHandle;
+osMessageQId Motor_To_PC_QueueHandle;
+osMutexId p2mMutexHandle;
+osMutexId m2pMutexHandle;
+
+/* Private function prototypes -----------------------------------------------*/
+/* USER CODE BEGIN FunctionPrototypes */
+
+/* USER CODE END FunctionPrototypes */
+
+void Task_Commucation(void const * argument);
+void Task_MotorCtrl(void const * argument);
+
+void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
+
+/* GetIdleTaskMemory prototype (linked to static allocation support) */
+void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize );
+
+/* USER CODE BEGIN GET_IDLE_TASK_MEMORY */
+static StaticTask_t xIdleTaskTCBBuffer;
+static StackType_t xIdleStack[configMINIMAL_STACK_SIZE];
+
+void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize )
+{
+  *ppxIdleTaskTCBBuffer = &xIdleTaskTCBBuffer;
+  *ppxIdleTaskStackBuffer = &xIdleStack[0];
+  *pulIdleTaskStackSize = configMINIMAL_STACK_SIZE;
+  /* place for user code */
+}
+/* USER CODE END GET_IDLE_TASK_MEMORY */
+
+/**
+  * @brief  FreeRTOS initialization
+  * @param  None
+  * @retval None
+  */
+void MX_FREERTOS_Init(void) {
+  /* USER CODE BEGIN Init */
+
+  /* USER CODE END Init */
+  /* Create the mutex(es) */
+  /* definition and creation of p2mMutex */
+  osMutexDef(p2mMutex);
+  p2mMutexHandle = osMutexCreate(osMutex(p2mMutex));
+
+  /* definition and creation of m2pMutex */
+  osMutexDef(m2pMutex);
+  m2pMutexHandle = osMutexCreate(osMutex(m2pMutex));
+
+  /* USER CODE BEGIN RTOS_MUTEX */
+  /* add mutexes, ... */
+  /* USER CODE END RTOS_MUTEX */
+
+  /* USER CODE BEGIN RTOS_SEMAPHORES */
+  /* add semaphores, ... */
+  /* USER CODE END RTOS_SEMAPHORES */
+
+  /* USER CODE BEGIN RTOS_TIMERS */
+  /* start timers, add new ones, ... */
+  /* USER CODE END RTOS_TIMERS */
+
+  /* Create the queue(s) */
+  /* definition and creation of PC_To_MotorQueue */
+  osMessageQDef(PC_To_MotorQueue, 5, P2M);
+  PC_To_MotorQueueHandle = osMessageCreate(osMessageQ(PC_To_MotorQueue), NULL);
+
+  /* definition and creation of Motor_To_PC_Queue */
+  osMessageQDef(Motor_To_PC_Queue, 5, M2P);
+  Motor_To_PC_QueueHandle = osMessageCreate(osMessageQ(Motor_To_PC_Queue), NULL);
+
+  /* USER CODE BEGIN RTOS_QUEUES */
+  /* add queues, ... */
+  /* USER CODE END RTOS_QUEUES */
+
+  /* Create the thread(s) */
+  /* definition and creation of CommucationTask */
+  osThreadDef(CommucationTask, Task_Commucation, osPriorityNormal, 0, 400);
+  CommucationTaskHandle = osThreadCreate(osThread(CommucationTask), NULL);
+
+  /* definition and creation of MotorCtrlTask */
+  osThreadDef(MotorCtrlTask, Task_MotorCtrl, osPriorityNormal, 0, 400);
+  MotorCtrlTaskHandle = osThreadCreate(osThread(MotorCtrlTask), NULL);
+
+  /* USER CODE BEGIN RTOS_THREADS */
+  /* add threads, ... */
+  /* USER CODE END RTOS_THREADS */
+
+}
+
+/* USER CODE BEGIN Header_Task_Commucation */
+/**
+  * @brief  Function implementing the CommucationTask thread.
+  * @param  argument: Not used
+  * @retval None
+  */
+/* USER CODE END Header_Task_Commucation */
+void Task_Commucation(void const * argument)
+{
+  /* USER CODE BEGIN Task_Commucation */
+	BaseType_t xStatus_Send;
+	BaseType_t xStatus_Receive;
+  /* Infinite loop */
+  for(;;)
+  {
+//	xSemaphoreTake(p2mMutexHandle, 0);
+//	PC_UnpackMessage();
+//	if(p2m_pc.head==0xFC&&p2m_pc.end==0xFF){
+//		xStatus_Send = xQueueSendToBack(PC_To_MotorQueueHandle,&p2m_pc,0);
+//		if(xStatus_Send==pdPASS){}else{}
+//	}else{}
+
+
+//	xStatus_Receive = xQueueReceive(Motor_To_PC_QueueHandle, &m2p_pc, 0);
+//	if(xStatus_Receive==pdPASS){
+//		if(m2p_pc.head==0xFC&&m2p_pc.end==0xFF){
+//			PC_PackMessage();
+//		}else{m2p_pc_wrong+=1;}//end m2p_pc.id
+//	}else{}//end xStatus_Receive
+	if(xSemaphoreTake(p2mMutexHandle, 0)==pdTRUE){
+		PC_UnpackMessage();
+		xSemaphoreGive(p2mMutexHandle);
+		//debugPrint("Hello:Communication Task \r\n");
+	}
+	xSemaphoreGive(p2mMutexHandle);
+	if(xSemaphoreTake(m2pMutexHandle, 0)==pdTRUE){
+		PC_PackMessage();
+	}
+	xSemaphoreGive(m2pMutexHandle);
+    osDelay(10);
+  }
+  /* USER CODE END Task_Commucation */
+}
+
+/* USER CODE BEGIN Header_Task_MotorCtrl */
+/**
+* @brief Function implementing the MotorCtrlTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_Task_MotorCtrl */
+void Task_MotorCtrl(void const * argument)
+{
+  /* USER CODE BEGIN Task_MotorCtrl */
+  BaseType_t xStatus_Send;
+  BaseType_t xStatus_Receive;
+	/* Infinite loop */
+  for(;;)
+  {
+//	xStatus_Receive = xQueueReceive(PC_To_MotorQueueHandle, &p2m_motor,0);
+//	if(xStatus_Receive==pdPASS){
+//		if(p2m_motor.head==0xFC&&p2m_motor.end==0xFF){
+//			//Motor_CMDUnpack();
+//			Motor_Debug_CMDUnpack();
+//		}
+//	}else{}//end xStatus
+//	Motor_UpdateMessages();
+//	if(m2p_motor.head==0xFC&&m2p_motor.end==0xFF){
+//		xStatus_Send = xQueueSend(Motor_To_PC_QueueHandle,&m2p_motor,0);
+//		if(xStatus_Send==pdPASS){
+//		}else{}
+//	}
+	  if(xSemaphoreTake(p2mMutexHandle, 0)==pdTRUE){
+		  Motor_Debug_CMDUnpack();
+		  xSemaphoreGive(p2mMutexHandle);
+		  debugPrint("Hello: Task Motor\r\n");
+	  }
+	  if(xSemaphoreTake(m2pMutexHandle, 0)==pdTRUE){
+		  Motor_UpdateMessages();
+	  }
+	  xSemaphoreGive(m2pMutexHandle);
+	  osDelay(5);
+  }
+  /* USER CODE END Task_MotorCtrl */
+}
+
+/* Private application code --------------------------------------------------*/
+/* USER CODE BEGIN Application */
+
+/* USER CODE END Application */

@@ -9,6 +9,6 @@
 #define INC_DEBUG_UART_H_
 
 void debugPrint(char *fmt,...);
-
+void debugPrintMultiThread(char* fmt,...);
 
 #endif /* INC_DEBUG_UART_H_ */

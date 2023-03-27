@@ -1,0 +1,10 @@
+19:46:02 **** Build of configuration Debug for project ModbusF429DMA ****
+make -j16 all 
+arm-none-eabi-size   ModbusF429DMA.elf 
+   text	   data	    bss	    dec	    hex	filename
+  39052	     24	  23640	  62716	   f4fc	ModbusF429DMA.elf
+Finished building: default.size.stdout
+ 
+
+19:46:03 Build Finished. 0 errors, 0 warnings. (took 276ms)
+

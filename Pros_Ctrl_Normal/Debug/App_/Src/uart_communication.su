@@ -1,0 +1,6 @@
+../App_/Src/uart_communication.c:48:6:Start_PCReceiveIT	8	static
+../App_/Src/uart_communication.c:70:6:HAL_UART_RxCpltCallback	16	static
+../App_/Src/uart_communication.c:76:6:HAL_UART_TxHalfCpltCallback	16	static
+../App_/Src/uart_communication.c:80:6:PC_UnpackMessage	4	static
+../App_/Src/uart_communication.c:94:6:PC_PackMessage	24	static
+../App_/Src/uart_communication.c:113:6:PC_CommunicationErrorHandler	8	static
