@@ -219,7 +219,8 @@ void Task_MotorCtrl(void const * argument)
 //		}else{}
 //	}
 	  if(xSemaphoreTake(p2mMutexHandle, 0)==pdTRUE){
-		  Motor_Debug_CMDUnpack();
+//		  Motor_Debug_CMDUnpack();
+		  Motor_CMDUnpack();
 		  xSemaphoreGive(p2mMutexHandle);
 	  }
 	  if(xSemaphoreTake(m2pMutexHandle, 0)==pdTRUE){

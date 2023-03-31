@@ -12,4 +12,4 @@
 ../App/Src/motor.c:221:6:can_set_vel	32	static
 ../App/Src/motor.c:229:6:Motor_UpdateMessages	16	static
 ../App/Src/motor.c:298:6:Motor_CMDUnpack	16	static
-../App/Src/motor.c:358:6:Motor_Debug_CMDUnpack	16	static
+../App/Src/motor.c:359:6:Motor_Debug_CMDUnpack	16	static

@@ -7,7 +7,7 @@
 
 #ifndef INC_RINGBUFFER_H_
 #define INC_RINGBUFFER_H_
-#define Buffer_MAX 55
+#define Buffer_MAX 21
 #include "main.h"
 #include "stdio.h"
 typedef struct{

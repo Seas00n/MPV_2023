@@ -1,8 +1,0 @@
-/*
- * ringbuffer.c
- *
- *  Created on: Mar 23, 2023
- *      Author: root
- */
-#include "ringbuffer.h"
-

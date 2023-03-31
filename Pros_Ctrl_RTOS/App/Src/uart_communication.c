@@ -82,9 +82,11 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef* huart, uint16_t Size){
 	if(huart==&huart6){
 		RingBuf_WriteByteArray(&buffer, rxDataBuffer, Size);
 		RingBuf_ReadByteNewestArray(&buffer, rxData, sizeof(rxData));
+		tx_len = size_m2p;
+		HAL_UART_Transmit_DMA(&huart6, txDataBuffer,tx_len);
+//		HAL_UARTEx_ReceiveToIdle_DMA(&huart6, rxDataBuffer, sizeof(rxData));
+//		__HAL_DMA_DISABLE_IT(&hdma_usart6_rx, DMA_IT_HT);
 	}
-//	HAL_UARTEx_ReceiveToIdle_DMA(&huart6, rxDataBuffer, sizeof(rxData));
-//	__HAL_DMA_DISABLE_IT(&hdma_usart6_rx, DMA_IT_HT);
 
 }
 
@@ -158,16 +160,16 @@ void PC_PackMessage(){
 			pos_actual_rtpc = (float)(((m2p.value1>>4)&0xfff)-b_float2int12)/k_float2int12;
 			m2pmsg_memcpy(txDataBuffer, m2p);
 			tx_len = size_m2p;
-			HAL_UART_Transmit_DMA(&huart6, txDataBuffer,tx_len);
-			count = 0;
-			while(huart6.gState!=HAL_UART_STATE_READY){
-				if(count>1000){
-					PC_CommunicationErrorHandler();
-					break;
-				}else{
-					count+=1;
-				}
-			}
+//			HAL_UART_Transmit_DMA(&huart6, txDataBuffer,tx_len);
+//			count = 0;
+//			while(huart6.gState!=HAL_UART_STATE_READY){
+//				if(count>1000){
+//					PC_CommunicationErrorHandler();
+//					break;
+//				}else{
+//					count+=1;
+//				}
+//			}
 		}
 }
 

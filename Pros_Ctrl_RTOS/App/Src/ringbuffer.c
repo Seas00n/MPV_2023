@@ -32,7 +32,7 @@ void RingBuf_WriteByteArray(ringBuffer_t* buffer, uint8_t* pData, uint32_t lengt
 		memcpy((uint8_t*)(buffer->ringBuf),(uint8_t*)pData+i,length-i);
 	}else{
 		memcpy((uint8_t*)(buffer->ringBuf)+buffer->tailPosition,pData,length);
-      buffer->tailPosition = buffer->tailPosition+length;
+		buffer->tailPosition = buffer->tailPosition+length;
 	}
 //	for(i=0;i<length;i++){
 //		RingBuf_WriteByte(buffer, *(pData+i));
@@ -54,33 +54,33 @@ int RingBuf_ReadByte(ringBuffer_t* buffer, uint8_t* pData){
 
 int RingBuf_ReadByteArray(ringBuffer_t* buffer, uint8_t* pData, uint32_t length){
 	read_ok = 1;
-	for(j=0;j<length;j++){
-		read_ok *= RingBuf_ReadByte(buffer, (uint8_t*)(pData+j));
-	}
-//	if(buffer->headPosition+length>=Buffer_MAX){
-//		i = Buffer_MAX-buffer->headPosition;
-//		j = length-i;
-//		if(i<=(buffer->tailPosition)||(buffer->tailPosition)<=j){
-//			read_ok = 0;
-//			return read_ok;
-//		}else{
-//			memcpy((uint8_t*)pData,(uint8_t*)(buffer->ringBuf)+buffer->headPosition,i);
-//			buffer->headPosition = length-i;
-//			memcpy((uint8_t*)pData+i,(uint8_t*)(buffer->ringBuf),length-i);
-//			read_ok = 1;
-//			return read_ok;
-//		}
-//	}else{
-//		if(buffer->headPosition+length>buffer->tailPosition){
-//			read_ok = 0;
-//			return read_ok;
-//		}else{
-//			memcpy(pData,(uint8_t*)(buffer->ringBuf)+buffer->headPosition,length);
-//			buffer->headPosition = buffer->headPosition+length;
-//			read_ok = 1;
-//			return read_ok;
-//		}
+//	for(j=0;j<length;j++){
+//		read_ok *= RingBuf_ReadByte(buffer, (uint8_t*)(pData+j));
 //	}
+	if(buffer->headPosition+length>Buffer_MAX){
+		i = Buffer_MAX-buffer->headPosition;
+		j = length-i;
+		if(i<=(buffer->tailPosition)||(buffer->tailPosition)<j){
+			read_ok = 0;
+			return read_ok;
+		}else{
+			memcpy((uint8_t*)pData,(uint8_t*)(buffer->ringBuf)+buffer->headPosition,i);
+			buffer->headPosition = length-i;
+			memcpy((uint8_t*)pData+i,(uint8_t*)(buffer->ringBuf),length-i);
+			read_ok = 1;
+			return read_ok;
+		}
+	}else{
+		if(buffer->headPosition+length>buffer->tailPosition){
+			read_ok = 0;
+			return read_ok;
+		}else{
+			memcpy(pData,(uint8_t*)(buffer->ringBuf)+buffer->headPosition,length);
+			buffer->headPosition = buffer->headPosition+length;
+			read_ok = 1;
+			return read_ok;
+		}
+	}
 	return read_ok;
 }
 int RingBuf_ReadByteNewestArray(ringBuffer_t* buffer,uint8_t* pData, uint32_t length){

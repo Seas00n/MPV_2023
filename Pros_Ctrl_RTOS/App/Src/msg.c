@@ -15,23 +15,23 @@ float b_float2int12 = 2110;
 volatile P2M p2m = {0x01,0xFF,0x00,0x0000,0x0000,0x0000,0x0000,0x00};//
 volatile M2P m2p = {0x01,0xFF,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000};//
 
-void p2mmsg_memcpy(uint8_t* buffer,volatile P2M p2m){
+void p2mmsg_memcpy(uint8_t* buffer,volatile P2M p2m_){
 	//TODO
 }
-void m2pmsg_memcpy(uint8_t* buffer,volatile M2P m2p){
-	buffer[0] = m2p.head;
-	buffer[1] = m2p.value1>>8&0xff;
-	buffer[2] = m2p.value1&0xff;
-	buffer[3] = m2p.value2>>8&0xff;
-	buffer[4] = m2p.value2&0xff;
-	buffer[5] = m2p.value3>>8&0xff;
-	buffer[6] = m2p.value3&0xff;
-	buffer[7] = m2p.value4>>8&0xff;
-	buffer[8] = m2p.value4&0xff;
-	buffer[9] = m2p.value5>>8&0xff;
-	buffer[10] = m2p.value5&0xff;
-	buffer[11] = m2p.value6>>8&0xff;
-	buffer[12] = m2p.value6&0xff;
-	buffer[13] = m2p.end;
+void m2pmsg_memcpy(uint8_t* buffer,volatile M2P m2p_){
+	buffer[0] = m2p_.head;
+	buffer[1] = m2p_.value1>>8&0xff;
+	buffer[2] = m2p_.value1&0xff;
+	buffer[3] = m2p_.value2>>8&0xff;
+	buffer[4] = m2p_.value2&0xff;
+	buffer[5] = m2p_.value3>>8&0xff;
+	buffer[6] = m2p_.value3&0xff;
+	buffer[7] = m2p_.value4>>8&0xff;
+	buffer[8] = m2p_.value4&0xff;
+	buffer[9] = m2p_.value5>>8&0xff;
+	buffer[10] = m2p_.value5&0xff;
+	buffer[11] = m2p_.value6>>8&0xff;
+	buffer[12] = m2p_.value6&0xff;
+	buffer[13] = m2p_.end;
 }
 
