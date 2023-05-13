@@ -53,6 +53,10 @@ static int16_t cur_int;
 static int16_t temp_int;
 #define RADs_TO_ERPM(v) (v*30.0/3.14159265359*21.0*64.0)
 #define ERPM_TO_RADs(v) (v/21.0/64.0*3.14159265359/30.0)
+#define ERPM_TO_DEGREE(v) (v/21.0/64.0*180.0/30.0)
+#define DEGREE_TO_ERPM(v) (v*21.0*64.0/180.0*30.0)
+#define RAD_TO_DEGREE(v) (v*180.0/3.14159265359)
+#define DEGREE_TO_RAD(v) (v*3.14159265359/180.0)
 #define MIN(X,Y) ({\
 	typeof (X) x_ = (X);\
 	typeof (Y) y_ = (Y);\
@@ -72,24 +76,40 @@ static float pos_max = 90.0;
 static float vel_max = ERPM_TO_RADs(80000);
 static float current_max = 20.0;
 static float torque_max = 144.0;
-static float accel_max = 30000;
+static float accel_max = 50000;
 
 
 //TODO
 //Use to debug
 volatile float pos_desired_rtmotor = 0;
 volatile float pos_actual_rtmotor = 0;
-extern volatile float pos_desired_rtpc;
-extern volatile float pos_actual_rtpc;
+volatile float pos_desired_rtpc = 0;
+volatile float pos_actual_rtpc = 0;
+volatile float vel_desired_rtmotor = 0;
+volatile float vel_actual_rtmotor = 0;
+volatile float vel_desired_rtpc = 0;
+volatile float vel_actual_rtpc = 0;
+volatile float Kp_desired_rtmotor = 0;
+volatile float Kp_desired_rtpc = 0;
+volatile float Kb_desired_rtmotor = 0;
+volatile float Kb_desired_rtpc = 0;
+volatile float Angle_desired_rtmotor = 0;
+volatile float Angle_desired_rtpc = 0;
+volatile float current_actual_rtmotor = 0;
+volatile float current_actual_rtpc = 0;
 
 void CAN_FilterConfig(){
 	CAN_FilterTypeDef sFilterConfig;
-	sFilterConfig.FilterActivation = CAN_FILTER_ENABLE;
 	sFilterConfig.FilterBank = 0;
-	sFilterConfig.FilterFIFOAssignment = CAN_FILTERMODE_IDMASK;
+	sFilterConfig.FilterMode = CAN_FILTERMODE_IDMASK;
 	sFilterConfig.FilterScale = CAN_FILTERSCALE_32BIT;
-	sFilterConfig.FilterIdHigh = 0x00;
-	sFilterConfig.FilterIdLow  = 0x00;
+	sFilterConfig.FilterIdHigh = 0x0000;
+	sFilterConfig.FilterIdLow = 0x0000;
+	sFilterConfig.FilterMaskIdHigh = 0x0000;
+	sFilterConfig.FilterMaskIdLow = 0x0000;
+	sFilterConfig.FilterFIFOAssignment = CAN_RX_FIFO0;
+	sFilterConfig.FilterActivation = ENABLE;
+	sFilterConfig.SlaveStartFilterBank = 14;
 	if(HAL_CAN_ConfigFilter(&hcan1, &sFilterConfig)!=HAL_OK){
 		Error_Handler();
 	}
@@ -128,8 +148,8 @@ void motor_init(){
 	motor_ankle.device_id = 0x02;
 	motor_knee.state = 0x01;
 	motor_ankle.state = 0x01;
-	can_set_pos_spd(motor_knee.device_id, 0,4,30000);
-	can_set_pos_spd(motor_ankle.device_id,0,4,30000);
+	can_set_pos_spd(motor_knee.device_id, 0,0,10000);
+	can_set_pos_spd(motor_ankle.device_id,0,0,10000);
 	HAL_Delay(2000);
 	can_set_origin(motor_knee.device_id);
 	can_set_origin(motor_ankle.device_id);
@@ -145,30 +165,31 @@ void motor_receive(){
 		vel_int = (rxDataBuffer[2]<<8)|rxDataBuffer[3];
 		cur_int = (rxDataBuffer[4]<<8)|rxDataBuffer[5];
 		temp_int = rxDataBuffer[6];
-		if(rxHeader.StdId==motor_knee.device_id+0x2900){
+		if(rxHeader.ExtId==motor_knee.device_id+0x2900){
 			if(motor_knee.is_free==1){
 			motor_knee.is_free = 0;
 			motor_knee.pos_actual = (float)(pos_int*0.1f);
 			motor_knee.vel_actual = (float)(vel_int*10.0f);
-			motor_knee.vel_actual = ERPM_TO_RADs(motor_knee.vel_actual);
+//			motor_knee.vel_actual = ERPM_TO_RADs(motor_knee.vel_actual);
+			motor_knee.vel_actual = ERPM_TO_DEGREE(motor_knee.vel_actual);
 			motor_knee.cur_actual = (float)(cur_int*0.01f);
 			motor_knee.temperature = (float)temp_int;
 			motor_knee.is_free = 1;
 			}
 			else{}
-		}else if (rxHeader.StdId==motor_ankle.device_id+0x2900){
+		}else if (rxHeader.ExtId==motor_ankle.device_id+0x2900){
 			if(motor_ankle.is_free==1){
 			motor_ankle.is_free = 0;
 			motor_ankle.pos_actual = (float)(pos_int*0.1f);
 			motor_ankle.vel_actual = (float)(vel_int*10.0f);
-			motor_ankle.vel_actual = ERPM_TO_RADs(motor_ankle.vel_actual);
+//			motor_ankle.vel_actual = ERPM_TO_RADs(motor_ankle.vel_actual);
+			motor_ankle.vel_actual = ERPM_TO_DEGREE(motor_ankle.vel_actual);
 			motor_ankle.cur_actual = (float)(cur_int*0.01f);
 			motor_ankle.temperature = (float)temp_int;
 			motor_ankle.is_free = 1;
 			}
 			else{}
 		}
-		Motor_UpdateMessages();
 	}
 }
 
@@ -196,6 +217,7 @@ void can_set_pos_spd(uint8_t controller_id, float pos,float vel,float accel ){
 	send_idx = 0;
 	pos = MAX(MIN(pos, pos_max),-pos_max);
 	buffer_append_int32(txDataBuffer, (int32_t)(pos * 10000.0), &send_idx);
+	vel = DEGREE_TO_RAD(vel);
 	vel = MAX(MIN(vel,vel_max),-vel_max);
 	vel = RADs_TO_ERPM(vel);
 	buffer_append_int16(txDataBuffer,(int16_t)(vel/10.0), & send_idx);
@@ -219,6 +241,7 @@ void can_set_pos(uint8_t controller_id, float pos){
 	CAN_SendMessage(msg_ext_id,send_idx);
 }
 void can_set_vel(uint8_t controller_id, float vel){
+	vel = DEGREE_TO_RAD(vel);
 	vel = MAX(MIN(vel,vel_max),-vel_max);
 	vel = RADs_TO_ERPM(vel);
 	buffer_append_int32(txDataBuffer,(int32_t)(vel), &send_idx);
@@ -266,7 +289,6 @@ void Motor_UpdateMessages(){
 		temp1 = (uint16_t)(motor_knee.pos_actual*k_float2int12+b_float2int12);
 		temp2 = (uint16_t)(motor_knee.vel_actual*k_float2int12+b_float2int12);
 		m2p.value1 = (uint16_t)(((temp1&0xfff)<<4)|(temp2>>8&0xf));
-		pos_actual_rtmotor = (float)(((m2p.value1>>4)&0xfff)-b_float2int12)/k_float2int12;
 //		debugPrint("Error1=%.2f,Error2=%.2f,Error3=%.2f,Error4=%.2f,pos_des=%.2f,pos_act=%.2f\r\n",
 //						pos_desired_rtpc-pos_desired_rtmotor,
 //						pos_desired_rtmotor-pos_actual_rtmotor,
@@ -292,6 +314,9 @@ void Motor_UpdateMessages(){
 		m2p.head = 0xFC;
 		motor_knee.is_free = 1;
 		motor_ankle.is_free = 1;
+		pos_actual_rtmotor = motor_knee.pos_actual;
+		vel_actual_rtmotor = motor_knee.vel_actual;
+		current_actual_rtmotor = motor_knee.cur_actual;
 	}else{}
 }
 
@@ -309,7 +334,6 @@ void Motor_CMDUnpack(){
 				can_set_pos(motor_knee.device_id, motor_knee.pos_desired);
 				motor_ankle.pos_desired = (float)((p2m.value2-b_float2int16)/k_float2int16);
 				can_set_pos(motor_ankle.device_id, motor_ankle.pos_desired);
-				pos_desired_rtmotor = motor_knee.pos_desired;
 			}else{}
 		}else if(p2m.id==CMD_VELOCITY_CTRL){
 			if(motor_knee.state==0x01&&motor_ankle.state==0x01){
@@ -324,8 +348,8 @@ void Motor_CMDUnpack(){
 				motor_knee.vel_desired = (float)((p2m.value2-b_float2int16)/k_float2int16);
 				motor_ankle.pos_desired = (float)((p2m.value3-b_float2int16)/k_float2int16);
 				motor_ankle.vel_desired = (float)((p2m.value4-b_float2int16)/k_float2int16);
-				can_set_pos_spd(motor_knee.device_id, motor_knee.pos_desired, motor_knee.vel_desired, 30000);
-				can_set_pos_spd(motor_ankle.device_id, motor_ankle.pos_desired, motor_ankle.vel_desired, 30000);
+				can_set_pos_spd(motor_knee.device_id, motor_knee.pos_desired, motor_knee.vel_desired, 40000);
+				can_set_pos_spd(motor_ankle.device_id, motor_ankle.pos_desired, motor_ankle.vel_desired, 40000);
 			}else{}
 		}else if(p2m.id==CMD_TORQUE_CTRL){
 			if(motor_knee.state==0x01&&motor_ankle.state==0x01){
@@ -355,6 +379,11 @@ void Motor_CMDUnpack(){
 			}else{}
 		}else{}//end p2m_motor.id
 	}else{}//end p2m_motor.head
+	pos_desired_rtmotor = motor_knee.pos_desired;
+	vel_desired_rtmotor = motor_knee.vel_desired;
+	Kp_desired_rtmotor = motor_knee.Kp;
+	Kb_desired_rtmotor = motor_knee.Kb;
+	Angle_desired_rtmotor = motor_knee.Angle_eq;
 }
 void Motor_Debug_CMDUnpack(){
 		uint16_t temp;
@@ -372,7 +401,6 @@ void Motor_Debug_CMDUnpack(){
 							motor_ankle.pos_desired = (float)((p2m.value2-b_float2int16)/k_float2int16);
 							motor_knee.pos_actual = motor_knee.pos_desired;
 							motor_ankle.pos_actual = motor_ankle.pos_desired;
-							pos_desired_rtmotor = motor_knee.pos_desired+0.0;
 						}else{}
 					}else if(p2m.id==CMD_VELOCITY_CTRL){
 						if(motor_knee.state==0x01&&motor_ankle.state==0x01){
@@ -420,4 +448,9 @@ void Motor_Debug_CMDUnpack(){
 						}else{}
 					}else{}//end p2m_motor.id
 				}else{}//end p2m_motor.head
+		pos_desired_rtmotor = motor_knee.pos_desired;
+		vel_desired_rtmotor = motor_knee.vel_desired;
+		Kp_desired_rtmotor = motor_knee.Kp;
+		Kb_desired_rtmotor = motor_knee.Kb;
+		Angle_desired_rtmotor = motor_knee.Angle_eq;
 }

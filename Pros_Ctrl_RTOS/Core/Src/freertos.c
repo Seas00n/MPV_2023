@@ -174,7 +174,6 @@ void Task_Commucation(void const * argument)
 //			PC_PackMessage();
 //		}else{m2p_pc_wrong+=1;}//end m2p_pc.id
 //	}else{}//end xStatus_Receive
-
 	if(xSemaphoreTake(p2mMutexHandle, 0)==pdTRUE){
 		PC_UnpackMessage();
 		xSemaphoreGive(p2mMutexHandle);
@@ -228,7 +227,7 @@ void Task_MotorCtrl(void const * argument)
 		  xSemaphoreGive(m2pMutexHandle);
 	  }
 //	  debugPrintMultiThread("Hello: Task Motor\r\n");
-	  osDelay(5);
+	  osDelay(2);
   }
   /* USER CODE END Task_MotorCtrl */
 }

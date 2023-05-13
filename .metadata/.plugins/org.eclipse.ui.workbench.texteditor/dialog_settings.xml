@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
-		<item key="selection" value="motor_ankle.pos_desired"/>
+		<item key="selection" value="ERPM"/>
 		<item key="wrap" value="true"/>
 		<item key="casesensitive" value="false"/>
 		<item key="wholeword" value="false"/>
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="ERPM"/>
+			<item value="pos_desired_rt"/>
+			<item value="pos_des"/>
+			<item value="current_actual_rtmotor"/>
+			<item value="pos_actual_rtmotor"/>
+			<item value="pos_actual"/>
 			<item value="pos_desired_ankle"/>
 			<item value="Angle_eq_ankle"/>
 			<item value="Angle_eq_knee"/>
@@ -17,12 +23,6 @@
 			<item value="Kp_knee"/>
 			<item value="I_desired_ankle"/>
 			<item value="vel_desired_ankle"/>
-			<item value="I_desired_knee"/>
-			<item value="vel_desired_knee"/>
-			<item value="pos_desired_knee"/>
-			<item value="msg_ext"/>
-			<item value="can_set_pos"/>
-			<item value="motor_ankle.id"/>
 		</list>
 		<list key="replacehistory">
 			<item value="motor_ankle.pos_desired"/>
@@ -43,7 +43,7 @@
 		</list>
 	</section>
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
-		<item key="DIALOG_X_ORIGIN" value="1226"/>
+		<item key="DIALOG_X_ORIGIN" value="845"/>
 		<item key="DIALOG_Y_ORIGIN" value="167"/>
 		<item key="DIALOG_WIDTH" value="363"/>
 		<item key="DIALOG_HEIGHT" value="437"/>

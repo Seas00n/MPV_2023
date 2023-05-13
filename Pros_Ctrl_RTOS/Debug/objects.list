@@ -1,3 +1,4 @@
+"./App/Src/Dialog.o"
 "./App/Src/debug_uart.o"
 "./App/Src/motor.o"
 "./App/Src/msg.o"

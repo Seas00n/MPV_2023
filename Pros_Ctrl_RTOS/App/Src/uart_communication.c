@@ -53,8 +53,15 @@ static ringBuffer_t buffer;
 
 //TODO
 //Use to Debug
-volatile float pos_desired_rtpc = 0;
-volatile float pos_actual_rtpc = 0;
+extern volatile float pos_desired_rtpc;
+extern volatile float pos_actual_rtpc;
+extern volatile float vel_desired_rtpc;
+extern volatile float vel_actual_rtpc;
+extern volatile float current_actual_rtpc;
+extern volatile float Kp_desired_rtpc;
+extern volatile float Kb_desired_rtpc;
+extern volatile float Angle_desired_rtpc;
+
 uint32_t msg_receive;
 uint32_t msg_send;
 
@@ -104,7 +111,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart){
 	}
 }
 void HAL_UART_TxHalfCpltCallback(UART_HandleTypeDef *huart){
-	huart->gState = HAL_UART_STATE_READY;
+//	huart->gState = HAL_UART_STATE_READY;
 }
 // [0]0x(id)* ,[9]0x*F
 void PC_UnpackMessage(){
@@ -136,6 +143,7 @@ void PC_UnpackMessage(){
 		p2m.ext_value = (uint8_t)(((rxData[1]&0xf)<<4)|(rxData[10]>>4&0xf));
 		p2m.head = 0xFC;
 		pos_desired_rtpc = (float)((p2m.value1-b_float2int16)/k_float2int16);
+		vel_desired_rtpc = (float)((p2m.value2-b_float2int16)/k_float2int16);
 	}
 }
 
@@ -157,9 +165,10 @@ void PC_PackMessage(){
 //		}
 //	}
 	if(m2p.head==0xFC && m2p.end==0xFF){
-			pos_actual_rtpc = (float)(((m2p.value1>>4)&0xfff)-b_float2int12)/k_float2int12;
 			m2pmsg_memcpy(txDataBuffer, m2p);
 			tx_len = size_m2p;
+			pos_actual_rtpc = (float)(((m2p.value1>>4)&0xfff)-b_float2int12)/k_float2int12;
+			vel_actual_rtpc = (float)((((m2p.value1&0xf)<<8)|(m2p.value2>>8&0xff))-b_float2int12)/k_float2int12;
 //			HAL_UART_Transmit_DMA(&huart6, txDataBuffer,tx_len);
 //			count = 0;
 //			while(huart6.gState!=HAL_UART_STATE_READY){

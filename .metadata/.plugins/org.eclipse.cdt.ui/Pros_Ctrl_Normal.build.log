@@ -1,4 +1,4 @@
-23:12:12 **** Build of configuration Debug for project Pros_Ctrl_Normal ****
+00:06:54 **** Build of configuration Debug for project Pros_Ctrl_Normal ****
 make -j16 all 
 arm-none-eabi-size   Pros_Ctrl_Normal.elf 
    text	   data	    bss	    dec	    hex	filename
@@ -6,5 +6,5 @@ arm-none-eabi-size   Pros_Ctrl_Normal.elf
 Finished building: default.size.stdout
  
 
-23:12:13 Build Finished. 0 errors, 0 warnings. (took 277ms)
+00:06:55 Build Finished. 0 errors, 0 warnings. (took 275ms)
 

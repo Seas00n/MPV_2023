@@ -1,10 +1,20 @@
-14:19:15 **** Incremental Build of configuration Debug for project Pros_Ctrl_RTOS ****
+06:15:37 **** Incremental Build of configuration Debug for project Pros_Ctrl_RTOS ****
 make -j16 all 
+arm-none-eabi-gcc "../App/Src/motor.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F427xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -I../Middlewares/Third_Party/FreeRTOS/Source/include -I../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F -I"/home/yuxuan/Project/MPV_2023/Pros_Ctrl_RTOS/App/Inc" -I../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS -O0 -ffunction-sections -fdata-sections -Wall -u_printf_float -fstack-usage -MMD -MP -MF"App/Src/motor.d" -MT"App/Src/motor.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "App/Src/motor.o"
+../App/Src/motor.c:78:14: warning: 'torque_max' defined but not used [-Wunused-variable]
+   78 | static float torque_max = 144.0;
+      |              ^~~~~~~~~~
+arm-none-eabi-gcc -o "Pros_Ctrl_RTOS.elf" @"objects.list"   -mcpu=cortex-m4 -T"/home/yuxuan/Project/MPV_2023/Pros_Ctrl_RTOS/STM32F427IIHX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Pros_Ctrl_RTOS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -u _scanf_float -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Pros_Ctrl_RTOS.elf
+ 
 arm-none-eabi-size   Pros_Ctrl_RTOS.elf 
+arm-none-eabi-objdump -h -S  Pros_Ctrl_RTOS.elf  > "Pros_Ctrl_RTOS.list"
    text	   data	    bss	    dec	    hex	filename
-  60008	    660	  19060	  79728	  13770	Pros_Ctrl_RTOS.elf
+  60264	    660	  19092	  80016	  13890	Pros_Ctrl_RTOS.elf
 Finished building: default.size.stdout
  
+Finished building: Pros_Ctrl_RTOS.list
+ 
 
-14:19:16 Build Finished. 0 errors, 0 warnings. (took 305ms)
+06:15:38 Build Finished. 0 errors, 1 warnings. (took 737ms)
 

@@ -5,6 +5,7 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../App/Src/Dialog.c \
 ../App/Src/debug_uart.c \
 ../App/Src/motor.c \
 ../App/Src/msg.c \
@@ -12,6 +13,7 @@ C_SRCS += \
 ../App/Src/uart_communication.c 
 
 OBJS += \
+./App/Src/Dialog.o \
 ./App/Src/debug_uart.o \
 ./App/Src/motor.o \
 ./App/Src/msg.o \
@@ -19,6 +21,7 @@ OBJS += \
 ./App/Src/uart_communication.o 
 
 C_DEPS += \
+./App/Src/Dialog.d \
 ./App/Src/debug_uart.d \
 ./App/Src/motor.d \
 ./App/Src/msg.d \
@@ -33,7 +36,7 @@ App/Src/%.o App/Src/%.su: ../App/Src/%.c App/Src/subdir.mk
 clean: clean-App-2f-Src
 
 clean-App-2f-Src:
-	-$(RM) ./App/Src/debug_uart.d ./App/Src/debug_uart.o ./App/Src/debug_uart.su ./App/Src/motor.d ./App/Src/motor.o ./App/Src/motor.su ./App/Src/msg.d ./App/Src/msg.o ./App/Src/msg.su ./App/Src/ringbuffer.d ./App/Src/ringbuffer.o ./App/Src/ringbuffer.su ./App/Src/uart_communication.d ./App/Src/uart_communication.o ./App/Src/uart_communication.su
+	-$(RM) ./App/Src/Dialog.d ./App/Src/Dialog.o ./App/Src/Dialog.su ./App/Src/debug_uart.d ./App/Src/debug_uart.o ./App/Src/debug_uart.su ./App/Src/motor.d ./App/Src/motor.o ./App/Src/motor.su ./App/Src/msg.d ./App/Src/msg.o ./App/Src/msg.su ./App/Src/ringbuffer.d ./App/Src/ringbuffer.o ./App/Src/ringbuffer.su ./App/Src/uart_communication.d ./App/Src/uart_communication.o ./App/Src/uart_communication.su
 
 .PHONY: clean-App-2f-Src
 
