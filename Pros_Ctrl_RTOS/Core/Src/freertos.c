@@ -49,10 +49,6 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
 
-extern P2M p2m_pc;
-extern M2P m2p_pc;
-extern P2M p2m_motor;
-extern M2P m2p_motor;
 /* USER CODE END Variables */
 osThreadId CommucationTaskHandle;
 osThreadId MotorCtrlTaskHandle;
@@ -160,20 +156,6 @@ void Task_Commucation(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-//	xSemaphoreTake(p2mMutexHandle, 0);
-//	PC_UnpackMessage();
-//	if(p2m_pc.head==0xFC&&p2m_pc.end==0xFF){
-//		xStatus_Send = xQueueSendToBack(PC_To_MotorQueueHandle,&p2m_pc,0);
-//		if(xStatus_Send==pdPASS){}else{}
-//	}else{}
-
-
-//	xStatus_Receive = xQueueReceive(Motor_To_PC_QueueHandle, &m2p_pc, 0);
-//	if(xStatus_Receive==pdPASS){
-//		if(m2p_pc.head==0xFC&&m2p_pc.end==0xFF){
-//			PC_PackMessage();
-//		}else{m2p_pc_wrong+=1;}//end m2p_pc.id
-//	}else{}//end xStatus_Receive
 	if(xSemaphoreTake(p2mMutexHandle, 0)==pdTRUE){
 		PC_UnpackMessage();
 		xSemaphoreGive(p2mMutexHandle);
@@ -204,19 +186,6 @@ void Task_MotorCtrl(void const * argument)
 	/* Infinite loop */
   for(;;)
   {
-//	xStatus_Receive = xQueueReceive(PC_To_MotorQueueHandle, &p2m_motor,0);
-//	if(xStatus_Receive==pdPASS){
-//		if(p2m_motor.head==0xFC&&p2m_motor.end==0xFF){
-//			//Motor_CMDUnpack();
-//			Motor_Debug_CMDUnpack();
-//		}
-//	}else{}//end xStatus
-//	Motor_UpdateMessages();
-//	if(m2p_motor.head==0xFC&&m2p_motor.end==0xFF){
-//		xStatus_Send = xQueueSend(Motor_To_PC_QueueHandle,&m2p_motor,0);
-//		if(xStatus_Send==pdPASS){
-//		}else{}
-//	}
 	  if(xSemaphoreTake(p2mMutexHandle, 0)==pdTRUE){
 //		  Motor_Debug_CMDUnpack();
 		  Motor_CMDUnpack();

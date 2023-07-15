@@ -32,6 +32,10 @@ void m2pmsg_memcpy(uint8_t* buffer,volatile M2P m2p_){
 	buffer[10] = m2p_.value5&0xff;
 	buffer[11] = m2p_.value6>>8&0xff;
 	buffer[12] = m2p_.value6&0xff;
-	buffer[13] = m2p_.end;
+	buffer[13] = m2p_.value7>>8&0xff;
+	buffer[14] = m2p_.value7&0xff;
+	buffer[15] = m2p_.value8>>8&0xff;
+	buffer[16] = m2p_.value8&0xff;
+	buffer[17] = m2p_.end;
 }
 

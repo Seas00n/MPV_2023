@@ -67,8 +67,8 @@ static int16_t temp_int;
 	(x_ > y_) ? x_ : y_; })
 
 
-volatile M2P m2p_motor = {0x01,0xFF,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,};
-volatile P2M p2m_motor = {0x01,0xFF,0x00,0x0000,0x0000,0x0000,0x0000,0x00,};
+volatile P2M p2m_motor = {0x01,0xFF,0x00,0,0,0,0,0,0};//size 15
+volatile M2P m2p_motor = {0x01,0xFF,0,0,0,0,0,0,0,0};//size 18
 extern volatile P2M p2m;
 extern volatile M2P m2p;
 
@@ -250,67 +250,39 @@ void can_set_vel(uint8_t controller_id, float vel){
 }
 
 void Motor_UpdateMessages(){
-//	m2p_motor.head = 0x01;
-//	uint16_t temp1 = 0;
-//	uint16_t temp2 = 0;
-//	temp1 = (uint16_t)(motor_knee.pos_actual*k_float2int12+b_float2int12);
-//	temp2 = (uint16_t)(motor_knee.vel_actual*k_float2int12+b_float2int12);
-//	m2p_motor.value1 = (uint16_t)(((temp1&0xfff)<<4)|(temp2>>8&0xf));
-//	pos_actual_rtmotor = (float)(((m2p_motor.value1>>4)&0xfff)-b_float2int12)/k_float2int12;
-//	debugPrint("Error1=%.2f,Error2=%.2f,Error3=%.2f,Error4=%.2f,pos_des=%.2f,pos_act=%.2f\r\n",
-//			pos_desired_rtpc-pos_desired_rtmotor,
-//			pos_desired_rtmotor-pos_actual_rtmotor,
-//			pos_actual_rtmotor-pos_actual_rtpc,
-//			pos_desired_rtpc-pos_actual_rtpc,
-//			pos_desired_rtpc,
-//			pos_actual_rtpc);
-//	temp1 = (uint16_t)(motor_ankle.pos_actual*k_float2int12+b_float2int12);
-//	m2p_motor.value2 = (uint16_t)(((temp2&0xff)<<8)|(temp1>>4&0xff));
-//
-//	temp2 = (uint16_t)(motor_ankle.vel_actual*k_float2int12+b_float2int12);
-//	m2p_motor.value3 = (uint16_t)(((temp1&0xf)<<12)|(temp2&0xfff));
-//
-//	temp1 = (uint16_t)(motor_knee.cur_actual*k_float2int12+b_float2int12);
-//	temp2 = (uint16_t)(motor_ankle.cur_actual*k_float2int12+b_float2int12);
-//	m2p_motor.value4 = (uint16_t)(((temp1&0xfff)<<4)|(temp2>>8&0xf));
-//
-//	temp1 = (uint16_t)(motor_knee.temperature*k_float2int12+b_float2int12);
-//	m2p_motor.value5  =(uint16_t)(((temp2&0xff)<<8)|(temp1>>4&0xff));
-//
-//	temp2 = (uint16_t)(motor_ankle.temperature*k_float2int12+b_float2int12);
-//	m2p_motor.value6 = (uint16_t)(((temp1&0xf)<<12)|(temp2&0xfff));
-//	m2p_motor.head = 0xFC;
 	if(motor_knee.is_free==1&&motor_ankle.is_free==1){
 		motor_knee.is_free=0;
 		motor_ankle.is_free=0;
 		m2p.head = 0x01;
-		uint16_t temp1 = 0;
-		uint16_t temp2 = 0;
-		temp1 = (uint16_t)(motor_knee.pos_actual*k_float2int12+b_float2int12);
-		temp2 = (uint16_t)(motor_knee.vel_actual*k_float2int12+b_float2int12);
-		m2p.value1 = (uint16_t)(((temp1&0xfff)<<4)|(temp2>>8&0xf));
-//		debugPrint("Error1=%.2f,Error2=%.2f,Error3=%.2f,Error4=%.2f,pos_des=%.2f,pos_act=%.2f\r\n",
-//						pos_desired_rtpc-pos_desired_rtmotor,
-//						pos_desired_rtmotor-pos_actual_rtmotor,
-//						pos_actual_rtmotor-pos_actual_rtpc,
-//						pos_desired_rtpc-pos_actual_rtpc,
-//						pos_desired_rtpc,
-//						pos_actual_rtpc);
-		temp1 = (uint16_t)(motor_ankle.pos_actual*k_float2int12+b_float2int12);
-		m2p.value2 = (uint16_t)(((temp2&0xff)<<8)|(temp1>>4&0xff));
-
-		temp2 = (uint16_t)(motor_ankle.vel_actual*k_float2int12+b_float2int12);
-		m2p.value3 = (uint16_t)(((temp1&0xf)<<12)|(temp2&0xfff));
-
-		temp1 = (uint16_t)(motor_knee.cur_actual*k_float2int12+b_float2int12);
-		temp2 = (uint16_t)(motor_ankle.cur_actual*k_float2int12+b_float2int12);
-		m2p.value4 = (uint16_t)(((temp1&0xfff)<<4)|(temp2>>8&0xf));
-
-		temp1 = (uint16_t)(motor_knee.temperature*k_float2int12+b_float2int12);
-		m2p.value5  =(uint16_t)(((temp2&0xff)<<8)|(temp1>>4&0xff));
-
-		temp2 = (uint16_t)(motor_ankle.temperature*k_float2int12+b_float2int12);
-		m2p.value6 = (uint16_t)(((temp1&0xf)<<12)|(temp2&0xfff));
+		m2p.value1 = (uint16_t)(motor_knee.pos_actual*k_float2int16+b_float2int16);
+		m2p.value2 = (uint16_t)(motor_knee.vel_actual*k_float2int16+b_float2int16);
+		m2p.value2 = (uint16_t)(motor_ankle.pos_actual*k_float2int16+b_float2int16);
+		m2p.value2 = (uint16_t)(motor_ankle.vel_actual*k_float2int16+b_float2int16);
+		m2p.value2 = (uint16_t)(motor_knee.cur_actual*k_float2int16+b_float2int16);
+		m2p.value2 = (uint16_t)(motor_ankle.cur_actual*k_float2int16+b_float2int16);
+		m2p.value2 = (uint16_t)(motor_knee.temperature*k_float2int16+b_float2int16);
+		m2p.value2 = (uint16_t)(motor_knee.temperature*k_float2int16+b_float2int16);
+//		uint16_t temp1 = 0;
+//		uint16_t temp2 = 0;
+//		temp1 = (uint16_t)(motor_knee.pos_actual*k_float2int12+b_float2int12);
+//		temp2 = (uint16_t)(motor_knee.vel_actual*k_float2int12+b_float2int12);
+//		m2p.value1 = (uint16_t)(((temp1&0xfff)<<4)|(temp2>>8&0xf));
+//
+//		temp1 = (uint16_t)(motor_ankle.pos_actual*k_float2int12+b_float2int12);
+//		m2p.value2 = (uint16_t)(((temp2&0xff)<<8)|(temp1>>4&0xff));
+//
+//		temp2 = (uint16_t)(motor_ankle.vel_actual*k_float2int12+b_float2int12);
+//		m2p.value3 = (uint16_t)(((temp1&0xf)<<12)|(temp2&0xfff));
+//
+//		temp1 = (uint16_t)(motor_knee.cur_actual*k_float2int12+b_float2int12);
+//		temp2 = (uint16_t)(motor_ankle.cur_actual*k_float2int12+b_float2int12);
+//		m2p.value4 = (uint16_t)(((temp1&0xfff)<<4)|(temp2>>8&0xf));
+//
+//		temp1 = (uint16_t)(motor_knee.temperature*k_float2int12+b_float2int12);
+//		m2p.value5  =(uint16_t)(((temp2&0xff)<<8)|(temp1>>4&0xff));
+//
+//		temp2 = (uint16_t)(motor_ankle.temperature*k_float2int12+b_float2int12);
+//		m2p.value6 = (uint16_t)(((temp1&0xf)<<12)|(temp2&0xfff));
 		m2p.head = 0xFC;
 		motor_knee.is_free = 1;
 		motor_ankle.is_free = 1;
@@ -360,18 +332,24 @@ void Motor_CMDUnpack(){
 			}else{}
 		}else if(p2m.id==CMD_IMPEDANCE){
 			if(motor_knee.state==0x01&&motor_ankle.state==0x01){
-				temp = (uint16_t)(p2m.value1>>4&0xfff);
-				motor_knee.Kp =(float) (temp-b_float2int12)/k_float2int12;
-				temp = (uint16_t)(((p2m.value1&0xf)<<8)|(p2m.value2>>8&0xff));
-				motor_ankle.Kp = (float) (temp-b_float2int12)/k_float2int12;
-				temp = (uint16_t)(((p2m.value2&0xff)<<4)|(p2m.value3>>12&0xf));
-				motor_knee.Kb = (float) (temp-b_float2int12)/k_float2int12;
-				temp = (uint16_t)(p2m.value3&0xfff);
-				motor_ankle.Kb = (float) (temp-b_float2int12)/k_float2int12;
-				temp = (uint16_t)(p2m.value4>>4&0xfff);
-				motor_knee.Angle_eq = (float) (temp-b_float2int12)/k_float2int12;
-				temp = (uint16_t)(((p2m.value4&0xf)<<8)|(p2m.ext_value));
-				motor_ankle.Angle_eq = (float) (temp-b_float2int12)/k_float2int12;
+//				temp = (uint16_t)(p2m.value1>>4&0xfff);
+//				motor_knee.Kp =(float) (temp-b_float2int12)/k_float2int12;
+//				temp = (uint16_t)(((p2m.value1&0xf)<<8)|(p2m.value2>>8&0xff));
+//				motor_ankle.Kp = (float) (temp-b_float2int12)/k_float2int12;
+//				temp = (uint16_t)(((p2m.value2&0xff)<<4)|(p2m.value3>>12&0xf));
+//				motor_knee.Kb = (float) (temp-b_float2int12)/k_float2int12;
+//				temp = (uint16_t)(p2m.value3&0xfff);
+//				motor_ankle.Kb = (float) (temp-b_float2int12)/k_float2int12;
+//				temp = (uint16_t)(p2m.value4>>4&0xfff);
+//				motor_knee.Angle_eq = (float) (temp-b_float2int12)/k_float2int12;
+//				temp = (uint16_t)(((p2m.value4&0xf)<<8)|(p2m.ext_value));
+//				motor_ankle.Angle_eq = (float) (temp-b_float2int12)/k_float2int12;
+				motor_knee.Kp = (float) (p2m.value1-b_float2int16)/k_float2int16;
+				motor_knee.Kb = (float) (p2m.value2-b_float2int16)/k_float2int16;
+				motor_ankle.Kp = (float) (p2m.value3-b_float2int16)/k_float2int16;
+				motor_ankle.Kb = (float) (p2m.value4-b_float2int16)/k_float2int16;
+				motor_knee.Angle_eq = (float) (p2m.value5-b_float2int16)/k_float2int16;
+				motor_ankle.Angle_eq = (float) (p2m.value6-b_float2int16)/k_float2int16;
 				motor_knee.cur_desired = motor_knee.Kp*(motor_knee.pos_actual-motor_knee.Angle_eq)+motor_knee.Kb*motor_knee.vel_actual;
 				motor_ankle.cur_desired = motor_ankle.Kp*(motor_ankle.pos_actual-motor_ankle.Angle_eq)+motor_ankle.Kb*motor_ankle.vel_actual;
 				can_set_current(motor_knee.device_id, motor_knee.cur_desired);
@@ -429,18 +407,24 @@ void Motor_Debug_CMDUnpack(){
 						}else{}
 					}else if(p2m.id==CMD_IMPEDANCE){
 						if(motor_knee.state==0x01&&motor_ankle.state==0x01){
-							temp = (uint16_t)(p2m.value1>>4&0xfff);
-							motor_knee.Kp =(float) (temp-b_float2int12)/k_float2int12;
-							temp = (uint16_t)(((p2m.value1&0xf)<<8)|(p2m.value2>>8&0xff));
-							motor_ankle.Kp = (float) (temp-b_float2int12)/k_float2int12;
-							temp = (uint16_t)(((p2m.value2&0xff)<<4)|(p2m.value3>>12&0xf));
-							motor_knee.Kb = (float) (temp-b_float2int12)/k_float2int12;
-							temp = (uint16_t)(p2m.value3&0xfff);
-							motor_ankle.Kb = (float) (temp-b_float2int12)/k_float2int12;
-							temp = (uint16_t)(p2m.value4>>4&0xfff);
-							motor_knee.Angle_eq = (float) (temp-b_float2int12)/k_float2int12;
-							temp = (uint16_t)(((p2m.value4&0xf)<<8)|(p2m.ext_value));
-							motor_ankle.Angle_eq = (float) (temp-b_float2int12)/k_float2int12;
+//							temp = (uint16_t)(p2m.value1>>4&0xfff);
+//							motor_knee.Kp =(float) (temp-b_float2int12)/k_float2int12;
+//							temp = (uint16_t)(((p2m.value1&0xf)<<8)|(p2m.value2>>8&0xff));
+//							motor_ankle.Kp = (float) (temp-b_float2int12)/k_float2int12;
+//							temp = (uint16_t)(((p2m.value2&0xff)<<4)|(p2m.value3>>12&0xf));
+//							motor_knee.Kb = (float) (temp-b_float2int12)/k_float2int12;
+//							temp = (uint16_t)(p2m.value3&0xfff);
+//							motor_ankle.Kb = (float) (temp-b_float2int12)/k_float2int12;
+//							temp = (uint16_t)(p2m.value4>>4&0xfff);
+//							motor_knee.Angle_eq = (float) (temp-b_float2int12)/k_float2int12;
+//							temp = (uint16_t)(((p2m.value4&0xf)<<8)|(p2m.ext_value));
+//							motor_ankle.Angle_eq = (float) (temp-b_float2int12)/k_float2int12;
+							motor_knee.Kp = (float) (p2m.value1-b_float2int16)/k_float2int16;
+							motor_knee.Kb = (float) (p2m.value2-b_float2int16)/k_float2int16;
+							motor_ankle.Kp = (float) (p2m.value3-b_float2int16)/k_float2int16;
+							motor_ankle.Kb = (float) (p2m.value4-b_float2int16)/k_float2int16;
+							motor_knee.Angle_eq = (float) (p2m.value5-b_float2int16)/k_float2int16;
+							motor_ankle.Angle_eq = (float) (p2m.value6-b_float2int16)/k_float2int16;
 							motor_knee.cur_desired = motor_knee.Kp*(motor_knee.pos_actual-motor_knee.Angle_eq)+motor_knee.Kb*motor_knee.vel_actual;
 							motor_ankle.cur_desired = motor_ankle.Kp*(motor_ankle.pos_actual-motor_ankle.Angle_eq)+motor_ankle.Kb*motor_ankle.vel_actual;
 							motor_knee.cur_actual = motor_knee.cur_desired;

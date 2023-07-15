@@ -16,7 +16,9 @@ typedef struct{
 	uint16_t value4;
 	uint16_t value5;
 	uint16_t value6;
-}M2P;
+	uint16_t value7;
+	uint16_t value8;
+}M2P;//size 18
 typedef struct{
 	uint8_t head;
 	uint8_t end;
@@ -25,8 +27,9 @@ typedef struct{
 	uint16_t value2;
 	uint16_t value3;
 	uint16_t value4;
-	uint8_t ext_value;
-}P2M;
+	uint16_t value5;
+	uint16_t value6;
+}P2M;//size 15
 void p2mmsg_memcpy(uint8_t*,volatile P2M);
 void m2pmsg_memcpy(uint8_t*,volatile M2P);
 #endif /* INC_MSG_H_ */

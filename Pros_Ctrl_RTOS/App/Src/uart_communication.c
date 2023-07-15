@@ -17,9 +17,9 @@
 
 
 
-static uint8_t txDataBuffer[40];
-static uint8_t rxDataBuffer[40];
-static uint8_t rxData[11];
+static uint8_t txDataBuffer[60];
+static uint8_t rxDataBuffer[60];
+static uint8_t rxData[15];
 static uint32_t rx_len;
 static uint32_t tx_len;
 
@@ -34,15 +34,15 @@ extern UART_HandleTypeDef huart6;
 extern DMA_HandleTypeDef hdma_usart6_rx;
 extern DMA_HandleTypeDef hdma_usart6_tx;
 
-volatile P2M p2m_pc = {0x01,0xFF,0x00,0x0000,0x0000,0x0000,0x0000,0x00};//
-volatile M2P m2p_pc = {0x01,0xFF,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000};//
+volatile P2M p2m_pc = {0x01,0xFF,0x00,0,0,0,0,0,0};//size 15
+volatile M2P m2p_pc = {0x01,0xFF,0,0,0,0,0,0,0,0};//size 18
 extern volatile P2M p2m;
 extern volatile M2P m2p;
 extern osMutexId p2mMutexHandle;
 extern osMutexId m2pMutexHandle;
 
-static uint32_t size_m2p = 14;
-static uint32_t size_p2m = 12;
+static uint32_t size_m2p = 18;
+static uint32_t size_p2m = 15;
 
 
 static ringBuffer_t buffer;
@@ -100,7 +100,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef* huart, uint16_t Size){
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart){
 	if(huart==&huart6){
 		msg_send+=1;
-		if(rxDataBuffer[0]==0xfc&&((rxDataBuffer[10]&0xf)==0xf)){
+		if(rxDataBuffer[0]==0xfc&&((rxDataBuffer[sizeof(rxData)-1]&0xf)==0xf)){
 			msg_receive +=1;
 			memcpy(rxData,rxDataBuffer,sizeof(rxData));
 			PC_UnpackMessage();
@@ -115,32 +115,15 @@ void HAL_UART_TxHalfCpltCallback(UART_HandleTypeDef *huart){
 }
 // [0]0x(id)* ,[9]0x*F
 void PC_UnpackMessage(){
-//	rx_len = 11;
-//	if(RingBuf_ReadByteArray(&buffer, rxData, rx_len)==1){
-//		if(rxData[0]==0xfc){
-//			uint8_t* rxDataBuffer_ = rxData+1;
-//			if(rx_len>=10 &&((rxDataBuffer_[9]&0xf)==0xf)){
-//				p2m.head = 0x01;
-//				p2m.id = (uint8_t)(rxDataBuffer_[0]>>4&0xf);
-//				p2m.value1 = (uint16_t)(rxDataBuffer_[1]<<8|rxDataBuffer_[2]);
-//				p2m.value2 = (uint16_t)(rxDataBuffer_[3]<<8|rxDataBuffer_[4]);
-//				p2m.value3 = (uint16_t)(rxDataBuffer_[5]<<8|rxDataBuffer_[6]);
-//				p2m.value4 = (uint16_t)(rxDataBuffer_[7]<<8|rxDataBuffer_[8]);
-//				p2m.ext_value = (uint8_t)(((rxDataBuffer_[0]&0xf)<<4)|(rxDataBuffer_[9]>>4&0xf));
-//				p2m.head = 0xFC;
-//				pos_desired_rtpc = (float)((p2m.value1-b_float2int16)/k_float2int16);
-//
-//			}else{}
-//		}else{}
-//	}
-	if(rxData[0]==0xfc&&rxData[0]==0xfc&&((rxData[10]&0xf)==0xf)){
+	if(rxData[0]==0xfc&&((rxData[sizeof(rxData)-1]&0xf)==0xf)){
 		p2m.head = 0x01;
 		p2m.id = (uint8_t)(rxData[1]>>4&0xf);
 		p2m.value1 = (uint16_t)(rxData[2]<<8|rxData[3]);
 		p2m.value2 = (uint16_t)(rxData[4]<<8|rxData[5]);
 		p2m.value3 = (uint16_t)(rxData[6]<<8|rxData[7]);
 		p2m.value4 = (uint16_t)(rxData[8]<<8|rxData[9]);
-		p2m.ext_value = (uint8_t)(((rxData[1]&0xf)<<4)|(rxData[10]>>4&0xf));
+		p2m.value5 = (uint16_t)(rxData[10]<<8|rxData[11]);
+		p2m.value6 = (uint16_t)(rxData[12]<<12|rxData[13]);
 		p2m.head = 0xFC;
 		pos_desired_rtpc = (float)((p2m.value1-b_float2int16)/k_float2int16);
 		vel_desired_rtpc = (float)((p2m.value2-b_float2int16)/k_float2int16);
@@ -148,27 +131,9 @@ void PC_UnpackMessage(){
 }
 
 void PC_PackMessage(){
-//	if(m2p_pc.head==0xFC && m2p_pc.end==0xFF){
-//		tx_len = size_m2p;
-//		pos_actual_rtpc = (float)(((m2p_pc.value1>>4)&0xfff)-b_float2int12)/k_float2int12;
-//		m2pmsg_memcpy(txDataBuffer, m2p_pc);
-//		HAL_UART_Transmit_DMA(&huart6, txDataBuffer,tx_len);
-//		count = 0;
-//		while(huart6.gState!=HAL_UART_STATE_READY){
-//			if(count>10){
-//				PC_CommunicationErrorHandler();
-//				break;
-//			}else{
-//				osDelay(1);
-//				count+=1;
-//			}
-//		}
-//	}
 	if(m2p.head==0xFC && m2p.end==0xFF){
 			m2pmsg_memcpy(txDataBuffer, m2p);
 			tx_len = size_m2p;
-			pos_actual_rtpc = (float)(((m2p.value1>>4)&0xfff)-b_float2int12)/k_float2int12;
-			vel_actual_rtpc = (float)((((m2p.value1&0xf)<<8)|(m2p.value2>>8&0xff))-b_float2int12)/k_float2int12;
 //			HAL_UART_Transmit_DMA(&huart6, txDataBuffer,tx_len);
 //			count = 0;
 //			while(huart6.gState!=HAL_UART_STATE_READY){

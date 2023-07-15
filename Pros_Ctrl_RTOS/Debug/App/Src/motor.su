@@ -10,6 +10,6 @@
 ../App/Src/motor.c:230:6:can_set_origin	16	static
 ../App/Src/motor.c:236:6:can_set_pos	32	static
 ../App/Src/motor.c:243:6:can_set_vel	32	static
-../App/Src/motor.c:252:6:Motor_UpdateMessages	16	static
-../App/Src/motor.c:323:6:Motor_CMDUnpack	16	static
-../App/Src/motor.c:388:6:Motor_Debug_CMDUnpack	16	static
+../App/Src/motor.c:252:6:Motor_UpdateMessages	4	static
+../App/Src/motor.c:295:6:Motor_CMDUnpack	8	static
+../App/Src/motor.c:366:6:Motor_Debug_CMDUnpack	4	static
